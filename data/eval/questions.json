@@ -1,0 +1,279 @@
+{
+  "questions": [
+    {
+      "question": "As empresas públicas e sociedades de economia mista regidas pela Lei 13.303/2016 são abrangidas pela Lei 14.133/2021?",
+      "expectedArticle": "Art. 1º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "A Lei de Licitações se aplica a contratações de tecnologia da informação e de comunicação e obras de arquitetura e engenharia?",
+      "expectedArticle": "Art. 2º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Contratos que tenham por objeto operação de crédito interno ou externo e gestão da dívida pública subordinam-se à Lei 14.133?",
+      "expectedArticle": "Art. 3º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais princípios administrativos expressos devem ser observados na aplicação da Lei 14.133, como segregação de funções e desenvolvimento nacional sustentável?",
+      "expectedArticle": "Art. 5º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é a definição legal de estudo técnico preliminar e de diálogo competitivo na Lei 14.133/2021?",
+      "expectedArticle": "Art. 6º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais requisitos devem preencher os agentes públicos designados para o desempenho das funções essenciais de licitação e o que exige o princípio da segregação de funções?",
+      "expectedArticle": "Art. 7º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quem conduz a licitação e como é denominado o agente responsável na modalidade pregão?",
+      "expectedArticle": "Art. 8º",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais são os quatro objetivos do processo licitatório, incluindo o ciclo de vida do objeto e evitar sobrepreço ou preços inexequíveis?",
+      "expectedArticle": "Art. 11",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é a finalidade do plano de contratações anual elaborado a partir de documentos de formalização de demandas?",
+      "expectedArticle": "Art. 12",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é a sequência padrão das fases do processo de licitação e em que condição a habilitação pode anteceder o julgamento?",
+      "expectedArticle": "Art. 17",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Como é caracterizada a fase preparatória do processo licitatório e o que o estudo técnico preliminar deve evidenciar?",
+      "expectedArticle": "Art. 18",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Em que condições o orçamento estimado da contratação pode ter caráter sigiloso e para quem o sigilo não prevalece?",
+      "expectedArticle": "Art. 24",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais são as cinco modalidades de licitação previstas na Lei 14.133/2021 e é permitido criar ou combinar modalidades?",
+      "expectedArticle": "Art. 28",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quando deve ser adotada a modalidade pregão e a quais objetos o pregão não se aplica?",
+      "expectedArticle": "Art. 29",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é o prazo mínimo de dias úteis para manifestação de interesse na modalidade diálogo competitivo?",
+      "expectedArticle": "Art. 32",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais são os seis critérios de julgamento das propostas previstos na nova Lei de Licitações?",
+      "expectedArticle": "Art. 33",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Onde deve ser realizada a divulgação obrigatória do inteiro teor do edital de licitação e em quais meios deve sair o extrato?",
+      "expectedArticle": "Art. 54",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é o prazo mínimo para apresentação de propostas e lances para aquisição de bens pelo critério de menor preço (8 dias úteis)?",
+      "expectedArticle": "Art. 55",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual percentual do valor orçado caracteriza proposta inexequível em licitações de obras e serviços de engenharia (75%)?",
+      "expectedArticle": "Art. 59",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Em quais casos é inexigível a licitação por inviabilidade de competição, como fornecedor exclusivo ou profissional do setor artístico?",
+      "expectedArticle": "Art. 74",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual o limite de valor para dispensa de licitação em obras e serviços de engenharia (R$ 100.000,00) e em outros serviços e compras (R$ 50.000,00)?",
+      "expectedArticle": "Art. 75",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual é o prazo de vigência da ata de registro de preços e ela pode ser prorrogada por igual período?",
+      "expectedArticle": "Art. 84",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Em quais hipóteses o instrumento de contrato não é obrigatório e pode ser substituído por nota de empenho ou carta-contrato?",
+      "expectedArticle": "Art. 95",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual o percentual máximo de acréscimos ou supressões unilaterais que o contratado é obrigado a aceitar em obras, serviços, compras (25%) e reforma de edifício (50%)?",
+      "expectedArticle": "Art. 125",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais são as quatro sanções administrativas aplicáveis ao licitante ou contratado e qual a faixa percentual da multa (0,5% a 30%)?",
+      "expectedArticle": "Art. 156",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Qual o prazo em dias úteis antes da abertura do certame para impugnar edital de licitação ou pedir esclarecimentos?",
+      "expectedArticle": "Art. 164",
+      "documentSlug": "lei-14133-2021"
+    },
+    {
+      "question": "Quais são os fundamentos da disciplina da proteção de dados pessoais segundo a LGPD, como autodeterminação informativa?",
+      "expectedArticle": "Art. 2º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em que situações a LGPD não se aplica ao tratamento de dados pessoais, como fins exclusivamente particulares, jornalísticos ou de segurança pública?",
+      "expectedArticle": "Art. 4º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "O que é considerado dado pessoal sensível, controlador, operador e encarregado nas definições da LGPD?",
+      "expectedArticle": "Art. 5º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais são os dez princípios das atividades de tratamento de dados pessoais na LGPD, como finalidade, adequação e necessidade?",
+      "expectedArticle": "Art. 6º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais são as dez hipóteses (bases legais) que autorizam o tratamento de dados pessoais, incluindo consentimento, legítimo interesse e proteção do crédito?",
+      "expectedArticle": "Art. 7º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Como deve ser fornecido o consentimento do titular e ele pode ser revogado a qualquer momento gratuitamente?",
+      "expectedArticle": "Art. 8º",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em quais hipóteses pode ocorrer o tratamento de dados pessoais sensíveis com ou sem consentimento do titular?",
+      "expectedArticle": "Art. 11",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "O que a LGPD exige para o tratamento de dados pessoais de crianças e de adolescentes quanto ao consentimento dos pais ou responsável legal?",
+      "expectedArticle": "Art. 14",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em quais hipóteses ocorre o término do tratamento de dados pessoais?",
+      "expectedArticle": "Art. 15",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em quais finalidades é autorizada a conservação dos dados pessoais mesmo após o término de seu tratamento?",
+      "expectedArticle": "Art. 16",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais são os direitos que o titular dos dados pessoais pode exercer perante o controlador mediante requisição, como portabilidade e eliminação?",
+      "expectedArticle": "Art. 18",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em qual prazo (até 15 dias) o controlador deve fornecer declaração clara e completa de confirmação ou acesso aos dados pessoais do titular?",
+      "expectedArticle": "Art. 19",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "O titular tem direito a solicitar a revisão de decisões tomadas unicamente com base em tratamento automatizado de dados pessoais?",
+      "expectedArticle": "Art. 20",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais regras se aplicam ao tratamento de dados pessoais realizado pelas pessoas jurídicas de direito público (Poder Público)?",
+      "expectedArticle": "Art. 23",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Em quais hipóteses é permitida a transferência internacional de dados pessoais para outros países ou organismos internacionais?",
+      "expectedArticle": "Art. 33",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "O controlador e o operador são obrigados a manter registro das operações de tratamento de dados pessoais que realizarem?",
+      "expectedArticle": "Art. 37",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais são as atribuições do encarregado pelo tratamento de dados pessoais (DPO) e onde seu contato deve ser divulgado?",
+      "expectedArticle": "Art. 41",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "O que o controlador deve comunicar à autoridade nacional (ANPD) e ao titular em caso de incidente de segurança com risco ou dano relevante?",
+      "expectedArticle": "Art. 48",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Quais são as sanções administrativas aplicáveis pela ANPD na LGPD e qual o limite da multa simples (2% do faturamento até R$ 50 milhões)?",
+      "expectedArticle": "Art. 52",
+      "documentSlug": "lei-13709-2018-lgpd"
+    },
+    {
+      "question": "Qual é o cálculo do adicional de insalubridade e periculosidade e a quantidade de dias de férias remuneradas na CLT?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Qual é a pena de reclusão prevista no Código Penal para o crime de furto qualificado e estelionato?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Quais são as alíquotas progressivas da tabela do Imposto de Renda Pessoa Física (IRPF) e deduções com dependentes?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Quantos pontos na Carteira Nacional de Habilitação (CNH) geram a suspensão do direito de dirigir segundo o Código de Trânsito Brasileiro?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Quais são os regimes de bens no casamento civil e as regras de partilha de herança no Código Civil?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Como preparar uma receita tradicional de pão de queijo mineiro com polvilho azedo e queijo meia cura?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Qual é o tempo mínimo de carência no INSS para concessão de aposentadoria por idade urbana pelo Regime Geral de Previdência Social?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Quais são as regras de cobrança de bagagem despachada em voos internacionais segundo a resolução da ANAC?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Qual é o prazo de garantia legal para produtos duráveis com vício oculto previsto no Código de Defesa do Consumidor?",
+      "expectedArticle": null,
+      "documentSlug": null
+    },
+    {
+      "question": "Como configurar o balanceamento de carga de pods com HorizontalPodAutoscaler em um cluster Kubernetes?",
+      "expectedArticle": null,
+      "documentSlug": null
+    }
+  ]
+}
