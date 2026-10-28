@@ -12,6 +12,10 @@ import { rerankChunks } from '../rag/reranker.js';
 import { vectorSearch, type SearchResultItem } from '../rag/vector-search.js';
 import { createChatRouter } from './routes/chat.route.js';
 import {
+  createDocumentsRouter,
+  type DocumentUploadService,
+} from './routes/documents.route.js';
+import {
   createSearchRouter,
   type SearchExecutor,
   type SearchRequestInput,
@@ -22,6 +26,7 @@ export interface AppDependencies {
   embedder?: EmbeddingProvider;
   searchFn?: SearchExecutor;
   llmAdapter?: LlmStreamAdapter;
+  documentUploadService?: DocumentUploadService;
 }
 
 export function createApp(deps: AppDependencies = {}): Express {
@@ -96,6 +101,14 @@ export function createApp(deps: AppDependencies = {}): Express {
           docType: filters.docType,
         }),
       llmAdapter: deps.llmAdapter,
+    }),
+  );
+
+  app.use(
+    '/documents',
+    createDocumentsRouter({
+      db: deps.db,
+      uploadService: deps.documentUploadService,
     }),
   );
 

@@ -17,5 +17,17 @@ services:
       timeout: 5s
       retries: 10
 
+  localstack:
+    image: localstack/localstack:3.7
+    container_name: lexa-localstack
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3,sqs
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - "./scripts/localstack-init.sh:/etc/localstack/init/ready.d/10-init.sh:ro"
+
 volumes:
   pgdata:
