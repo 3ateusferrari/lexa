@@ -5,10 +5,12 @@ import {
   createLocalEmbeddingProvider,
   type EmbeddingProvider,
 } from '../ingestion/embedder.js';
+import type { LlmStreamAdapter } from '../rag/chat-service.js';
 import { hybridSearchRRF } from '../rag/hybrid-search.js';
 import { lexicalSearch } from '../rag/lexical-search.js';
 import { rerankChunks } from '../rag/reranker.js';
 import { vectorSearch, type SearchResultItem } from '../rag/vector-search.js';
+import { createChatRouter } from './routes/chat.route.js';
 import {
   createSearchRouter,
   type SearchExecutor,
@@ -19,6 +21,7 @@ export interface AppDependencies {
   db?: DbClient;
   embedder?: EmbeddingProvider;
   searchFn?: SearchExecutor;
+  llmAdapter?: LlmStreamAdapter;
 }
 
 export function createApp(deps: AppDependencies = {}): Express {
@@ -77,7 +80,24 @@ export function createApp(deps: AppDependencies = {}): Express {
       : vecResults.slice(0, input.k);
   };
 
-  app.use('/search', createSearchRouter(deps.searchFn ?? defaultSearchFn));
+  const activeSearchFn = deps.searchFn ?? defaultSearchFn;
+  app.use('/search', createSearchRouter(activeSearchFn));
+
+  app.use(
+    '/chat',
+    createChatRouter({
+      retrieveCandidates: (question, k, filters) =>
+        activeSearchFn({
+          query: question,
+          k,
+          mode: 'hybrid',
+          rerank: true,
+          documentId: filters.documentId,
+          docType: filters.docType,
+        }),
+      llmAdapter: deps.llmAdapter,
+    }),
+  );
 
   return app;
 }
