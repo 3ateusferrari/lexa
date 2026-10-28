@@ -1,0 +1,22 @@
+{
+  "documents": [
+    {
+      "slug": "lei-14133-2021",
+      "title": "Lei nº 14.133, de 1º de abril de 2021 (Lei de Licitações e Contratos Administrativos)",
+      "docType": "lei",
+      "filePath": "data/corpus/lei-14133-2021.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm",
+      "downloadedAt": "2026-10-28"
+    },
+    {
+      "slug": "lei-13709-2018-lgpd",
+      "title": "Lei nº 13.709, de 14 de agosto de 2018 (Lei Geral de Proteção de Dados Pessoais - LGPD)",
+      "docType": "lei",
+      "filePath": "data/corpus/lei-13709-2018-lgpd.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
+      "downloadedAt": "2026-10-28"
+    }
+  ]
+}
