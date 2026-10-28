@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createResilientDatabaseConnection } from '../modules/db/client.js';
+import { createResilientDatabaseConnection, type DbClient } from '../modules/db/client.js';
 import { DocumentsRepository, EvalRepository } from '../modules/db/repositories/index.js';
 
 export interface EvalDatasetQuestion {
@@ -20,33 +20,34 @@ export function loadEvaluationDataset(
   return JSON.parse(readFileSync(filePath, 'utf8')) as EvalDatasetFile;
 }
 
-export async function seedEvalQuestions(databaseUrl: string, filePath?: string) {
+export async function seedEvalQuestionsOnDb(db: DbClient, filePath?: string) {
   const dataset = loadEvaluationDataset(filePath);
-  const conn = await createResilientDatabaseConnection(databaseUrl);
+  const docsRepo = new DocumentsRepository(db);
+  const evalRepo = new EvalRepository(db);
 
-  try {
-    const docsRepo = new DocumentsRepository(conn.db);
-    const evalRepo = new EvalRepository(conn.db);
-
-    const allDocs = await docsRepo.listAll();
-    const docBySlug = new Map<string, string>();
-    for (const doc of allDocs) {
-      if (doc.title.includes('14.133')) {
-        docBySlug.set('lei-14133-2021', doc.id);
-      } else if (doc.title.includes('13.709') || doc.title.includes('LGPD')) {
-        docBySlug.set('lei-13709-2018-lgpd', doc.id);
-      }
+  const allDocs = await docsRepo.listAll();
+  const docBySlug = new Map<string, string>();
+  for (const doc of allDocs) {
+    if (doc.title.includes('14.133')) {
+      docBySlug.set('lei-14133-2021', doc.id);
+    } else if (doc.title.includes('13.709') || doc.title.includes('LGPD')) {
+      docBySlug.set('lei-13709-2018-lgpd', doc.id);
     }
+  }
 
-    const rows = await evalRepo.replaceQuestions(
-      dataset.questions.map((q) => ({
-        question: q.question,
-        expectedArticle: q.expectedArticle,
-        documentId: q.documentSlug ? (docBySlug.get(q.documentSlug) ?? null) : null,
-      })),
-    );
+  return evalRepo.replaceQuestions(
+    dataset.questions.map((q) => ({
+      question: q.question,
+      expectedArticle: q.expectedArticle,
+      documentId: q.documentSlug ? (docBySlug.get(q.documentSlug) ?? null) : null,
+    })),
+  );
+}
 
-    return rows;
+export async function seedEvalQuestions(databaseUrl: string, filePath?: string) {
+  const conn = await createResilientDatabaseConnection(databaseUrl);
+  try {
+    return await seedEvalQuestionsOnDb(conn.db, filePath);
   } finally {
     await conn.close();
   }

@@ -1,0 +1,94 @@
+[
+  {
+    "id": "d3eb983d-fda6-4aa3-bdfb-1d4a01884d4c",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "structural",
+      "reranker": "local-cross-reranker-v1",
+      "searchMode": "hybrid",
+      "embeddingModel": "local-legal-pt-v1",
+      "refusalAccuracy": 1,
+      "refusalThreshold": 0.25
+    },
+    "hitRate": 1,
+    "mrr": 0.9741,
+    "createdAt": "2026-10-28T22:41:20.722Z"
+  },
+  {
+    "id": "190b7e96-be20-49bd-a2d1-d47e7c39421a",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "structural",
+      "reranker": "local-cross-reranker-v1",
+      "searchMode": "hybrid",
+      "embeddingModel": "local-char-ngram-v1",
+      "refusalAccuracy": 1,
+      "refusalThreshold": 0.25
+    },
+    "hitRate": 1,
+    "mrr": 0.9833,
+    "createdAt": "2026-10-28T22:41:20.002Z"
+  },
+  {
+    "id": "0bdbb48a-09da-4fdd-a9af-f0e68a968b5f",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "structural",
+      "reranker": "none",
+      "searchMode": "hybrid",
+      "embeddingModel": "local-legal-pt-v1",
+      "refusalAccuracy": 0
+    },
+    "hitRate": 0.9778,
+    "mrr": 0.8341,
+    "createdAt": "2026-10-28T22:41:18.863Z"
+  },
+  {
+    "id": "fb5d0265-e74f-427b-ba4c-ea25c5333cd3",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "structural",
+      "reranker": "none",
+      "searchMode": "lexical",
+      "embeddingModel": "local-legal-pt-v1",
+      "refusalAccuracy": 0
+    },
+    "hitRate": 0.8667,
+    "mrr": 0.5967,
+    "createdAt": "2026-10-28T22:41:18.223Z"
+  },
+  {
+    "id": "fa879ac5-ad1f-4757-95f9-6a13a2acdc0f",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "structural",
+      "reranker": "none",
+      "searchMode": "vector",
+      "embeddingModel": "local-legal-pt-v1",
+      "refusalAccuracy": 0
+    },
+    "hitRate": 0.9778,
+    "mrr": 0.9778,
+    "createdAt": "2026-10-28T22:41:17.783Z"
+  },
+  {
+    "id": "0e6eded2-3c23-45ab-9503-2b16bd4be591",
+    "gitSha": "7997cb9",
+    "config": {
+      "k": 5,
+      "chunking": "fixed",
+      "reranker": "none",
+      "searchMode": "vector",
+      "embeddingModel": "local-legal-pt-v1",
+      "refusalAccuracy": 0
+    },
+    "hitRate": 0.6444,
+    "mrr": 0.4244,
+    "createdAt": "2026-10-28T22:41:16.991Z"
+  }
+]
