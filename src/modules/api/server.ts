@@ -1,11 +1,11 @@
 import 'dotenv/config';
-import { createDatabaseConnection } from '../db/client.js';
+import { createResilientDatabaseConnection } from '../db/client.js';
 import { parseEnv } from '../shared/env.js';
 import { createApp } from './app.js';
 
 async function main() {
   const env = parseEnv();
-  const conn = createDatabaseConnection(env.DATABASE_URL);
+  const conn = await createResilientDatabaseConnection(env.DATABASE_URL);
   const app = createApp({ db: conn.db });
 
   const server = app.listen(env.PORT, () => {

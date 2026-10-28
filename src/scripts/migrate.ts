@@ -1,14 +1,18 @@
 import 'dotenv/config';
-import pg from 'pg';
-import { getDownMigrationSql, getInitialMigrationSql } from '../modules/db/migration-sql.js';
+import {
+  applyMigrationsOnConnection,
+  createResilientDatabaseConnection,
+} from '../modules/db/client.js';
 
-export async function runMigrations(databaseUrl: string, direction: 'up' | 'down' = 'up'): Promise<void> {
-  const pool = new pg.Pool({ connectionString: databaseUrl });
+export async function runMigrations(
+  databaseUrl: string,
+  direction: 'up' | 'down' = 'up',
+): Promise<void> {
+  const conn = await createResilientDatabaseConnection(databaseUrl);
   try {
-    const sqlText = direction === 'down' ? getDownMigrationSql() : getInitialMigrationSql();
-    await pool.query(sqlText);
+    await applyMigrationsOnConnection(conn, direction);
   } finally {
-    await pool.end();
+    await conn.close();
   }
 }
 

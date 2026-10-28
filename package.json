@@ -29,6 +29,7 @@
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/client-sqs": "^3.750.0",
     "@aws-sdk/s3-request-presigner": "^3.750.0",
+    "@electric-sql/pglite": "^0.3.15",
     "@huggingface/transformers": "^3.3.3",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",

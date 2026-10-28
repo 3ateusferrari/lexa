@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createDatabaseConnection } from '../modules/db/client.js';
+import { createResilientDatabaseConnection } from '../modules/db/client.js';
 import { CachedEmbedder, createLocalEmbeddingProvider } from '../modules/ingestion/embedder.js';
 import type { DocumentInputFormat } from '../modules/ingestion/extractor.js';
 import { IngestService, type ChunkingStrategy } from '../modules/ingestion/ingest-service.js';
@@ -30,7 +30,7 @@ export async function ingestCorpusFromManifest(options: {
   const manifestPath = options.manifestPath ?? resolve(process.cwd(), 'data/corpus/manifest.json');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as CorpusManifest;
 
-  const conn = createDatabaseConnection(options.databaseUrl);
+  const conn = await createResilientDatabaseConnection(options.databaseUrl);
   try {
     const baseProvider = createLocalEmbeddingProvider(options.embeddingModel);
     const embedder = new CachedEmbedder(baseProvider, {
