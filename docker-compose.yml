@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: lexa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lexa
+      POSTGRES_PASSWORD: lexa_dev_password
+      POSTGRES_DB: lexa_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lexa -d lexa_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
