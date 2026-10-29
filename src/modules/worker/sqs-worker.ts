@@ -10,6 +10,9 @@ import { IngestionJobsRepository } from '../db/repositories/index.js';
 import { CachedEmbedder, createLocalEmbeddingProvider } from '../ingestion/embedder.js';
 import type { DocumentInputFormat } from '../ingestion/extractor.js';
 import { IngestService } from '../ingestion/ingest-service.js';
+import { getAppLogger } from '../shared/logger.js';
+
+const logger = getAppLogger('sqs-worker');
 
 export interface IngestionQueueMessage {
   jobId: string;
@@ -49,6 +52,14 @@ export async function processIngestionQueueMessage(
     status: 'processing',
     incrementAttempt: true,
     error: null,
+  });
+
+  logger.info({
+    event: 'worker_job_processing_started',
+    jobId: msg.jobId,
+    requestId: msg.requestId,
+    s3Key: msg.s3Key,
+    title: msg.title,
   });
 
   try {

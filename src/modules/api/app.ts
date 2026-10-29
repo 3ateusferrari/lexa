@@ -15,6 +15,7 @@ import { vectorSearch, type SearchResultItem } from '../rag/vector-search.js';
 import { createDailyBudgetController } from './middlewares/daily-budget.js';
 import { errorHandlerMiddleware } from './middlewares/error-handler.js';
 import { createIpRateLimiter } from './middlewares/rate-limit.js';
+import { requestContextMiddleware } from './middlewares/request-context.js';
 import { createChatRouter } from './routes/chat.route.js';
 import {
   createDocumentsRouter,
@@ -42,6 +43,7 @@ export function createApp(deps: AppDependencies = {}): Express {
   const app = express();
 
   app.use(helmet());
+  app.use(requestContextMiddleware);
   app.use(
     cors({
       origin: deps.corsOrigin ?? process.env.CORS_ORIGIN ?? 'http://localhost:5173',
