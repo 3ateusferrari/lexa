@@ -64,3 +64,11 @@ module "oidc_github" {
   github_repository = var.github_repository
   depends_on        = [module.budget]
 }
+
+module "observability" {
+  source       = "./modules/observability"
+  project_name = var.project_name
+  alert_email  = var.alert_email
+  dlq_name     = module.storage_queue.dlq_name
+  depends_on   = [module.storage_queue]
+}
