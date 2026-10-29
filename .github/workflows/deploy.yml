@@ -1,0 +1,76 @@
+name: Continuous Deployment (AWS OIDC)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: lexa-app
+  ECS_CLUSTER: lexa-cluster
+  ECS_API_SERVICE: lexa-api-service
+  ECS_WORKER_SERVICE: lexa-worker-service
+
+jobs:
+  deploy:
+    name: Build, Migrate & Deploy to AWS (ECS Fargate + S3/CloudFront)
+    runs-on: ubuntu-latest
+    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run RAG Quality Gate before Deploy
+        run: npm run eval:ci
+
+      - name: Configure AWS Credentials via OIDC (No Static Keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker image tagged with immutable git SHA
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      - name: Apply Database Migrations (Drizzle ORM)
+        if: ${{ secrets.DATABASE_URL != '' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:migrate
+
+      - name: Update ECS Fargate Services (API & SQS Worker)
+        run: |
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_API_SERVICE" --force-new-deployment
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_WORKER_SERVICE" --force-new-deployment
+
+      - name: Build and Sync React Frontend to S3 + Invalidate CloudFront
+        if: ${{ vars.FRONTEND_S3_BUCKET != '' }}
+        run: |
+          npm run build:web
+          aws s3 sync web/dist "s3://${{ vars.FRONTEND_S3_BUCKET }}" --delete
+          if [[ -n "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" ]]; then
+            aws cloudfront create-invalidation --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" --paths "/*"
+          fi
