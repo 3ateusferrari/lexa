@@ -1,4 +1,6 @@
+import cors from 'cors';
 import express, { type Express } from 'express';
+import helmet from 'helmet';
 import type { DbClient } from '../db/client.js';
 import {
   CachedEmbedder,
@@ -10,6 +12,9 @@ import { hybridSearchRRF } from '../rag/hybrid-search.js';
 import { lexicalSearch } from '../rag/lexical-search.js';
 import { rerankChunks } from '../rag/reranker.js';
 import { vectorSearch, type SearchResultItem } from '../rag/vector-search.js';
+import { createDailyBudgetController } from './middlewares/daily-budget.js';
+import { errorHandlerMiddleware } from './middlewares/error-handler.js';
+import { createIpRateLimiter } from './middlewares/rate-limit.js';
 import { createChatRouter } from './routes/chat.route.js';
 import {
   createDocumentsRouter,
@@ -27,16 +32,37 @@ export interface AppDependencies {
   searchFn?: SearchExecutor;
   llmAdapter?: LlmStreamAdapter;
   documentUploadService?: DocumentUploadService;
+  rateLimitMaxPerMinute?: number;
+  maxDailyLlmCalls?: number;
+  corsOrigin?: string;
 }
 
 export function createApp(deps: AppDependencies = {}): Express {
   const app = express();
+
+  app.use(helmet());
+  app.use(
+    cors({
+      origin: deps.corsOrigin ?? process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+      methods: ['GET', 'POST', 'OPTIONS'],
+    }),
+  );
   app.use(express.json({ limit: '32kb' }));
+
+  const dailyBudget = createDailyBudgetController(
+    deps.maxDailyLlmCalls ?? Number(process.env.MAX_DAILY_LLM_CALLS ?? 200),
+  );
+  const chatRateLimiter = createIpRateLimiter({
+    maxRequests: deps.rateLimitMaxPerMinute ?? 20,
+    windowMs: 60_000,
+  });
 
   app.get('/health', (_req, res) => {
     res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),
+      dailyBudgetRemaining: dailyBudget.getRemaining(),
+      dailyBudgetLimit: dailyBudget.getLimit(),
     });
   });
 
@@ -90,6 +116,7 @@ export function createApp(deps: AppDependencies = {}): Express {
 
   app.use(
     '/chat',
+    chatRateLimiter,
     createChatRouter({
       retrieveCandidates: (question, k, filters) =>
         activeSearchFn({
@@ -101,6 +128,7 @@ export function createApp(deps: AppDependencies = {}): Express {
           docType: filters.docType,
         }),
       llmAdapter: deps.llmAdapter,
+      dailyBudget,
     }),
   );
 
@@ -111,6 +139,8 @@ export function createApp(deps: AppDependencies = {}): Express {
       uploadService: deps.documentUploadService,
     }),
   );
+
+  app.use(errorHandlerMiddleware);
 
   return app;
 }
