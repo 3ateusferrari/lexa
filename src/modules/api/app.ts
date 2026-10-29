@@ -20,6 +20,7 @@ import {
   createDocumentsRouter,
   type DocumentUploadService,
 } from './routes/documents.route.js';
+import { createEvalRouter } from './routes/eval.route.js';
 import {
   createSearchRouter,
   type SearchExecutor,
@@ -139,6 +140,8 @@ export function createApp(deps: AppDependencies = {}): Express {
       uploadService: deps.documentUploadService,
     }),
   );
+
+  app.use('/eval', createEvalRouter());
 
   app.use(errorHandlerMiddleware);
 
