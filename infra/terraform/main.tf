@@ -57,3 +57,10 @@ module "cdn" {
   project_name = var.project_name
   depends_on   = [module.budget]
 }
+
+module "oidc_github" {
+  source            = "./modules/oidc_github"
+  project_name      = var.project_name
+  github_repository = var.github_repository
+  depends_on        = [module.budget]
+}

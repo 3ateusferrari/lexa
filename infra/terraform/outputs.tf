@@ -22,3 +22,8 @@ output "ingest_queue_url" {
   description = "URL da fila SQS de ingestao"
   value       = module.storage_queue.ingest_queue_url
 }
+
+output "github_deploy_role_arn" {
+  description = "ARN da role IAM assumida pelo GitHub Actions via OIDC na branch main"
+  value       = module.oidc_github.github_deploy_role_arn
+}
