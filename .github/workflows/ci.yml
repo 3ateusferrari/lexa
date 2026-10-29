@@ -1,4 +1,4 @@
-name: CI
+name: CI & RAG Quality Gate
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   quality-and-tests:
-    name: Lint, Typecheck & Tests
+    name: Lint, Typecheck, Tests & RAG Quality Gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,11 +32,38 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build
-        run: npm run build
+      - name: Build Backend & Frontend
+        run: npm run build && npm run build:web
 
-      - name: Run tests
+      - name: Run Unit, Integration & E2E Tests
         run: npm test
         env:
           DATABASE_URL: postgresql://lexa:lexa_dev_password@localhost:5432/lexa_db
           NODE_ENV: test
+
+      - name: Run RAG Quality Gate (Hit Rate@5 >= 75%, MRR >= 0.60)
+        run: npm run eval:ci
+
+  terraform-validate:
+    name: Terraform Format & Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (Backend Disabled)
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
