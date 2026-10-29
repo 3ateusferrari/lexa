@@ -22,7 +22,7 @@ jobs:
     if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
