@@ -15,6 +15,11 @@ export interface DatabaseConnection {
 }
 
 export async function createPgliteConnection(dataDir?: string): Promise<DatabaseConnection> {
+  if (dataDir && dataDir !== 'memory') {
+    const fs = await import('node:fs');
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+
   const client = await PGlite.create({
     dataDir,
     extensions: { vector },
@@ -53,10 +58,27 @@ export function createDatabaseConnection(databaseUrl: string): DatabaseConnectio
     };
   }
 
+  const requiresSsl =
+    databaseUrl.includes('sslmode=require') ||
+    databaseUrl.includes('sslmode=verify-full') ||
+    databaseUrl.includes('rds.amazonaws.com');
+
+  let sanitizedUrl = databaseUrl;
+  if (requiresSsl) {
+    try {
+      const parsed = new URL(databaseUrl);
+      parsed.searchParams.delete('sslmode');
+      sanitizedUrl = parsed.toString();
+    } catch {
+      sanitizedUrl = databaseUrl.replace(/[?&]sslmode=[^&]+/, '');
+    }
+  }
+
   const pool = new pg.Pool({
-    connectionString: databaseUrl,
+    connectionString: sanitizedUrl,
     max: 10,
-    connectionTimeoutMillis: 3000,
+    connectionTimeoutMillis: 5000,
+    ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
   });
 
   const db = drizzleNodePg(pool, { schema });
@@ -82,11 +104,45 @@ export async function createResilientDatabaseConnection(
     return conn;
   }
 
-  const pgConn = createDatabaseConnection(databaseUrl);
+  let pgConn = createDatabaseConnection(databaseUrl);
   try {
     await pgConn.execSql('SELECT 1;');
+    await pgConn.execSql(getInitialMigrationSql());
     return pgConn;
-  } catch {
+  } catch (err: any) {
+    if (err && typeof err === 'object' && err.code === '3D000') {
+      try {
+        const requiresSsl =
+          databaseUrl.includes('sslmode=require') ||
+          databaseUrl.includes('sslmode=verify-full') ||
+          databaseUrl.includes('rds.amazonaws.com');
+        const adminUrlObj = new URL(databaseUrl);
+        const targetDbName = adminUrlObj.pathname.replace(/^\//, '');
+        adminUrlObj.pathname = '/postgres';
+        adminUrlObj.searchParams.delete('sslmode');
+        const adminPool = new pg.Pool({
+          connectionString: adminUrlObj.toString(),
+          max: 2,
+          connectionTimeoutMillis: 5000,
+          ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
+        });
+        const safeDbName = targetDbName.replace(/[^a-zA-Z0-9_]/g, '');
+        await adminPool.query(`CREATE DATABASE "${safeDbName}";`);
+        await adminPool.end();
+        console.log(`Successfully auto-created database "${safeDbName}" on RDS!`);
+
+        pgConn = createDatabaseConnection(databaseUrl);
+        await pgConn.execSql('SELECT 1;');
+        await pgConn.execSql(getInitialMigrationSql());
+        return pgConn;
+      } catch (adminErr) {
+        console.error('Failed to auto-create database via admin connection:', adminErr);
+      }
+    }
+
+    if (process.env.NODE_ENV === 'production' && !databaseUrl.startsWith('pglite://')) {
+      console.error('Failed to connect to primary PostgreSQL database in production:', err);
+    }
     await pgConn.close().catch(() => undefined);
     const pgliteConn = await createPgliteConnection(fallbackPgliteDir);
     await pgliteConn.execSql(getInitialMigrationSql());
