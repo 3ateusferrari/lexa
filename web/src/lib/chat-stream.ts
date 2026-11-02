@@ -106,25 +106,37 @@ export function segmentAnswerWithCitations(
   citations: CitationPayload[]
 ): AnswerSegment[] {
   const bySourceId = new Map<string, CitationPayload>();
-  for (const c of citations) {
-    bySourceId.set(c.sourceId.toLowerCase(), c);
-  }
+  citations.forEach((c, idx) => {
+    const canonicalKey = (c.sourceId || `Fonte ${idx + 1}`).toLowerCase();
+    bySourceId.set(canonicalKey, c);
+    if (c.chunkId) {
+      bySourceId.set(c.chunkId.toLowerCase(), c);
+      bySourceId.set(`fonte ${idx + 1}`, c);
+    }
+  });
 
-  const regex = /(\[Fonte\s+\d+\])/gi;
+  const regex =
+    /(\[(?:Fonte\s+\d+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\])/gi;
   const parts = answer.split(regex);
   const segments: AnswerSegment[] = [];
 
   for (const part of parts) {
     if (!part) continue;
-    const match = /^\[(Fonte\s+\d+)\]$/i.exec(part);
+    const match =
+      /^\[(Fonte\s+\d+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]$/i.exec(
+        part
+      );
     if (match && match[1]) {
-      const normalizedNumber = match[1].replace(/\s+/g, ' ').trim();
-      const canonicalId = `Fonte ${normalizedNumber.split(' ')[1]}`;
+      const rawKey = match[1].trim();
+      const matchedCitation = bySourceId.get(rawKey.toLowerCase());
+      const label = matchedCitation?.sourceId
+        ? `[${matchedCitation.sourceId}]`
+        : `[${rawKey}]`;
       segments.push({
         type: 'citation',
-        sourceId: canonicalId,
-        label: `[${canonicalId}]`,
-        citation: bySourceId.get(canonicalId.toLowerCase())
+        sourceId: matchedCitation?.sourceId || rawKey,
+        label,
+        citation: matchedCitation
       });
     } else {
       segments.push({ type: 'text', text: part });
@@ -184,20 +196,43 @@ export async function streamChatQuestion(
 
     const events = parseSseChunk(completePart);
     for (const ev of events) {
-      if (ev.event === 'token' && typeof ev.data.token === 'string') {
-        callbacks.onToken(ev.data.token);
+      const tokenText =
+        typeof ev.data.token === 'string'
+          ? ev.data.token
+          : typeof ev.data.text === 'string'
+            ? ev.data.text
+            : '';
+
+      if (ev.event === 'token' && tokenText) {
+        callbacks.onToken(tokenText);
       } else if (ev.event === 'citations') {
-        const citations = Array.isArray(ev.data.citations)
-          ? (ev.data.citations as CitationPayload[])
+        const rawCitations = Array.isArray(ev.data.citations)
+          ? (ev.data.citations as Array<Record<string, unknown>>)
           : [];
+        const citations: CitationPayload[] = rawCitations.map((c, idx) => ({
+          sourceId: typeof c.sourceId === 'string' && c.sourceId ? c.sourceId : `Fonte ${idx + 1}`,
+          chunkId: typeof c.chunkId === 'string' ? c.chunkId : undefined,
+          documentTitle: typeof c.documentTitle === 'string' ? c.documentTitle : 'Legislação Brasileira',
+          articleRef:
+            typeof c.articleRef === 'string' && c.articleRef
+              ? c.articleRef
+              : typeof c.article === 'string' && c.article
+                ? c.article
+                : 'Dispositivo',
+          content: typeof c.content === 'string' ? c.content : '',
+          rerankScore: Number(c.rerankScore ?? c.score ?? 0)
+        }));
         const usedSources = Array.isArray(ev.data.usedSources)
           ? (ev.data.usedSources as string[])
-          : [];
+          : citations.map((c) => c.sourceId);
         callbacks.onCitations(citations, usedSources);
       } else if (ev.event === 'done') {
+        const totalLatency =
+          Number(ev.data.latencyMs ?? 0) ||
+          Number(ev.data.searchLatencyMs ?? 0) + Number(ev.data.llmLatencyMs ?? 0);
         callbacks.onDone({
           refused: Boolean(ev.data.refused),
-          latencyMs: Number(ev.data.latencyMs ?? 0),
+          latencyMs: totalLatency,
           modelId: String(ev.data.modelId ?? 'claude-3-5-haiku-latest'),
           cached: Boolean(ev.data.cached)
         });

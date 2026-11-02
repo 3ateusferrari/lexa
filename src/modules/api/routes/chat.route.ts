@@ -80,7 +80,7 @@ export function createChatRouter(deps: ChatRouterDependencies): Router {
 
       const words = cachedExample.answer.split(/(\s+)/);
       for (const word of words) {
-        writeSseEvent(res, 'token', { text: word });
+        writeSseEvent(res, 'token', { text: word, token: word });
       }
       writeSseEvent(res, 'citations', {
         citations: cachedExample.citations,
@@ -144,7 +144,7 @@ export function createChatRouter(deps: ChatRouterDependencies): Router {
         },
         {
           onToken: (token) => {
-            writeSseEvent(res, 'token', { text: token });
+            writeSseEvent(res, 'token', { text: token, token });
           },
           onCitations: (citations, validation) => {
             citedCount = citations.length;
