@@ -1,3 +1,5 @@
+import { existsSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { vector } from '@electric-sql/pglite/vector';
 import { drizzle as drizzleNodePg, type NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -18,6 +20,14 @@ export async function createPgliteConnection(dataDir?: string): Promise<Database
   if (dataDir && dataDir !== 'memory') {
     const fs = await import('node:fs');
     fs.mkdirSync(dataDir, { recursive: true });
+    const lockFile = join(dataDir, 'postmaster.pid');
+    if (existsSync(lockFile)) {
+      try {
+        unlinkSync(lockFile);
+      } catch {
+        // ignore if cannot unlink
+      }
+    }
   }
 
   const client = await PGlite.create({
@@ -42,6 +52,16 @@ export function createDatabaseConnection(databaseUrl: string): DatabaseConnectio
   if (databaseUrl.startsWith('pglite://')) {
     const rawTarget = databaseUrl.replace(/^pglite:\/\//, '');
     const dataDir = rawTarget === 'memory' || rawTarget === '' ? undefined : rawTarget;
+    if (dataDir) {
+      const lockFile = join(dataDir, 'postmaster.pid');
+      if (existsSync(lockFile)) {
+        try {
+          unlinkSync(lockFile);
+        } catch {
+          // ignore if cannot unlink
+        }
+      }
+    }
     const client = new PGlite({
       dataDir,
       extensions: { vector },

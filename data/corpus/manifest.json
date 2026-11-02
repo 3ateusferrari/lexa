@@ -17,6 +17,96 @@
       "format": "html",
       "sourceUrl": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm",
       "downloadedAt": "2026-10-28"
+    },
+    {
+      "slug": "cf-1988",
+      "title": "Constituição da República Federativa do Brasil de 1988",
+      "docType": "constituicao",
+      "filePath": "data/corpus/constituicao-1988.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-8078-1990-cdc",
+      "title": "Lei nº 8.078, de 11 de setembro de 1990 (Código de Defesa do Consumidor - CDC)",
+      "docType": "codigo",
+      "filePath": "data/corpus/lei-8078-1990-cdc.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-5172-1966-ctn",
+      "title": "Lei nº 5.172, de 25 de outubro de 1966 (Código Tributário Nacional - CTN)",
+      "docType": "codigo",
+      "filePath": "data/corpus/lei-5172-1966-ctn.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/l5172compilado.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "decreto-lei-2848-1940-cp",
+      "title": "Decreto-Lei nº 2.848, de 7 de dezembro de 1940 (Código Penal - CP)",
+      "docType": "codigo",
+      "filePath": "data/corpus/decreto-lei-2848-1940-cp.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "decreto-lei-5452-1943-clt",
+      "title": "Decreto-Lei nº 5.452, de 1º de maio de 1943 (Consolidação das Leis do Trabalho - CLT)",
+      "docType": "codigo",
+      "filePath": "data/corpus/decreto-lei-5452-1943-clt.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del5452compilado.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-10406-2002-cc",
+      "title": "Lei nº 10.406, de 10 de janeiro de 2002 (Código Civil - CC)",
+      "docType": "codigo",
+      "filePath": "data/corpus/lei-10406-2002-cc.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-13105-2015-cpc",
+      "title": "Lei nº 13.105, de 16 de março de 2015 (Código de Processo Civil - CPC)",
+      "docType": "codigo",
+      "filePath": "data/corpus/lei-13105-2015-cpc.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-8112-1990",
+      "title": "Lei nº 8.112, de 11 de dezembro de 1990 (Regime Jurídico dos Servidores Públicos Civis da União)",
+      "docType": "lei",
+      "filePath": "data/corpus/lei-8112-1990.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/l8112cons.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-8429-1992",
+      "title": "Lei nº 8.429, de 2 de junho de 1992 (Lei de Improbidade Administrativa)",
+      "docType": "lei",
+      "filePath": "data/corpus/lei-8429-1992.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/l8429.htm",
+      "downloadedAt": "2026-11-02"
+    },
+    {
+      "slug": "lei-9784-1999",
+      "title": "Lei nº 9.784, de 29 de janeiro de 1999 (Processo Administrativo Federal)",
+      "docType": "lei",
+      "filePath": "data/corpus/lei-9784-1999.html",
+      "format": "html",
+      "sourceUrl": "https://www.planalto.gov.br/ccivil_03/leis/l9784.htm",
+      "downloadedAt": "2026-11-02"
     }
   ]
 }

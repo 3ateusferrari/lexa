@@ -11,18 +11,13 @@ const STOPWORDS_PT = new Set([
   'um', 'uma', 'sobre', 'segundo', 'esta', 'este', 'essa', 'esse', 'pode', 'deve',
 ]);
 
-// Domain terms specific to our indexed corpus (Lei 14.133/2021 & LGPD Lei 13.709/2018)
+// Domain terms strictly outside Brazilian law and legislation
 const OUT_OF_CORPUS_INDICATORS = new Set([
-  'clt', 'insalubridade', 'periculosidade', 'ferias', 'remuneradas',
-  'reclusao', 'furto', 'estelionato', 'penal',
-  'irpf', 'aliquotas', 'imposto', 'renda', 'dependentes',
-  'cnh', 'habilitacao', 'transito', 'dirigir', 'pontos',
-  'casamento', 'partilha', 'heranca',
-  'pao', 'queijo', 'mineiro', 'polvilho', 'azedo', 'receita', 'culinaria',
-  'inss', 'carencia', 'aposentadoria', 'previdencia',
-  'bagagem', 'despachada', 'voos', 'anac',
-  'vicio', 'oculto', 'duraveis',
-  'kubernetes', 'horizontalpodautoscaler', 'pods', 'cluster',
+  'pao', 'queijo', 'mineiro', 'polvilho', 'azedo', 'receita', 'culinaria', 'bolo', 'cenoura', 'brigadeiro',
+  'kubernetes', 'horizontalpodautoscaler', 'pods', 'cluster', 'docker', 'nginx',
+  'futebol', 'campeonato', 'brasileirao', 'escalacao', 'libertadores',
+  'astrologia', 'horoscopo', 'signo',
+  'filme', 'cinema', 'pipoca', 'netflix',
 ]);
 
 function normalize(text: string): string {

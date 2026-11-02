@@ -166,6 +166,103 @@ const LEGAL_CONCEPT_CLUSTERS: Array<{ id: string; terms: string[] }> = [
       '50000000', 'bloqueio', 'suspensao', 'proibicao', 'art52', '52',
     ],
   },
+  {
+    id: 'concept_penal_ilicitude_culpabilidade',
+    terms: [
+      'legitima', 'defesa', 'estado', 'necessidade', 'estrito', 'cumprimento', 'dever',
+      'legal', 'excludente', 'ilicitude', 'culpabilidade', 'imputabilidade', 'dolo',
+      'culpa', 'tentativa', 'consumacao', 'art23', 'art24', 'art25', '23', '24', '25',
+    ],
+  },
+  {
+    id: 'concept_penal_crimes_principais',
+    terms: [
+      'homicidio', 'furto', 'roubo', 'estelionato', 'lesao', 'corporal', 'peculato',
+      'concussao', 'corrupcao', 'passiva', 'ativa', 'prevaricacao', 'art121', 'art155',
+      'art157', 'art171', 'art312', 'art317', 'art333',
+    ],
+  },
+  {
+    id: 'concept_civil_personalidade_negocio',
+    terms: [
+      'personalidade', 'capacidade', 'incapaz', 'emancipacao', 'negocio', 'juridico',
+      'defeito', 'validade', 'nulidade', 'anulabilidade', 'coacao', 'simulacao',
+      'fraude', 'credores', 'art1', 'art3', 'art4', 'art104', 'art166', 'art171',
+    ],
+  },
+  {
+    id: 'concept_civil_obrigacoes_contratos',
+    terms: [
+      'obrigacao', 'obrigacoes', 'inadimplemento', 'mora', 'perdas', 'danos', 'clausula',
+      'penal', 'contrato', 'contratos', 'boa-fe', 'objetiva', 'responsabilidade',
+      'civil', 'art186', 'art389', 'art395', 'art421', 'art422', 'art927',
+    ],
+  },
+  {
+    id: 'concept_civil_reais_familia_sucessoes',
+    terms: [
+      'posse', 'propriedade', 'usucapiao', 'hipoteca', 'penhor', 'casamento', 'uniao',
+      'estavel', 'divorcio', 'alimentos', 'heranca', 'sucessao', 'testamento',
+      'art1196', 'art1228', 'art1238', 'art1566', 'art1694', 'art1784',
+    ],
+  },
+  {
+    id: 'concept_cpc_processo_civil',
+    terms: [
+      'competencia', 'peticao', 'inicial', 'citacao', 'contestacao', 'revelia',
+      'tutela', 'urgencia', 'evidencia', 'sentenca', 'coisa', 'julgada', 'agravo',
+      'instrumento', 'apelacao', 'embargos', 'declaracao', 'art300', 'art319',
+      'art335', 'art485', 'art487', 'art994', 'art1015', 'art1022',
+    ],
+  },
+  {
+    id: 'concept_clt_direito_trabalho',
+    terms: [
+      'empregado', 'empregador', 'vinculo', 'empregaticio', 'subordinacao', 'salario',
+      'remuneracao', 'jornada', 'trabalho', 'horas', 'extras', 'intervalo', 'intrajornada',
+      'fgts', 'aviso', 'previo', 'rescisao', 'justa', 'causa', 'ferias', 'decimo',
+      'terceiro', 'insalubridade', 'periculosidade', 'art2', 'art3', 'art58', 'art59',
+      'art71', 'art477', 'art482', 'art483',
+    ],
+  },
+  {
+    id: 'concept_consumidor_cdc',
+    terms: [
+      'consumidor', 'fornecedor', 'produto', 'servico', 'vicio', 'aparente', 'oculto',
+      'defeito', 'fato', 'decadencia', 'prescricao', 'trinta', 'noventa', 'dias',
+      'inversao', 'onus', 'prova', 'propaganda', 'enganosa', 'clausulas', 'abusivas',
+      'art2', 'art3', 'art6', 'art12', 'art14', 'art18', 'art20', 'art26', 'art27',
+      'art39', 'art51',
+    ],
+  },
+  {
+    id: 'concept_tributario_ctn',
+    terms: [
+      'tributo', 'imposto', 'taxa', 'contribuicao', 'melhoria', 'fato', 'gerador',
+      'sujeito', 'ativo', 'passivo', 'credito', 'tributario', 'lancamento', 'suspensao',
+      'extincao', 'exclusao', 'decadencia', 'prescricao', 'imunidade', 'isencao',
+      'art3', 'art97', 'art113', 'art114', 'art142', 'art151', 'art156', 'art173', 'art174',
+    ],
+  },
+  {
+    id: 'concept_constitucional_cf88',
+    terms: [
+      'direitos', 'garantias', 'fundamentais', 'clausula', 'petrea', 'habeas',
+      'corpus', 'mandado', 'seguranca', 'acao', 'popular', 'direta', 'inconstitucionalidade',
+      'adi', 'adc', 'adpf', 'separacao', 'poderes', 'executivo', 'legislativo',
+      'judiciario', 'emenda', 'constitucional', 'art1', 'art2', 'art5', 'art37',
+      'art60', 'art102', 'art105',
+    ],
+  },
+  {
+    id: 'concept_servidor_8112_improbidade_8429',
+    terms: [
+      'servidor', 'publico', 'estatutario', 'estagio', 'probatorio', 'estabilidade',
+      'posse', 'exercicio', 'demissao', 'exoneracao', 'pad', 'processo', 'administrativo',
+      'improbidade', 'enriquecimento', 'ilicito', 'prejuizo', 'erario', 'dolo',
+      'especifico', 'perda', 'funcao', 'art20', 'art132', 'art9', 'art10', 'art11',
+    ],
+  },
 ];
 
 function normalizeText(text: string): string {

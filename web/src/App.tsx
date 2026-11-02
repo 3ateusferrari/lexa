@@ -18,8 +18,7 @@ export const App: React.FC = () => {
         <div className="brand-group">
           <h1 className="brand-title">Lexa — Assistente RAG Jurídico</h1>
           <p className="brand-subtitle">
-            Lei nº 14.133/2021 (Nova Lei de Licitações) & Lei nº 13.709/2018
-            (LGPD) • Busca Híbrida + Reranking + Citações Verificáveis
+            Constituição Federal (CF/88), Códigos e Legislação Brasileira Consolidada • Busca Híbrida + Reranking + Citações Verificáveis
           </p>
         </div>
 

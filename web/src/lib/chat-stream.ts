@@ -23,40 +23,73 @@ export type AnswerSegment =
 
 export interface ExampleQuestionItem {
   id: string;
-  category: 'Lei 14.133/2021' | 'LGPD (Lei 13.709/2018)' | 'Fora do Escopo';
+  category:
+    | 'Constituição Federal (CF/88)'
+    | 'Código Penal (CP)'
+    | 'Código Civil (CC)'
+    | 'Trabalhista (CLT)'
+    | 'Consumidor (CDC)'
+    | 'Tributário (CTN)'
+    | 'Lei 14.133/2021'
+    | 'LGPD (Lei 13.709/2018)'
+    | 'Fora do Escopo';
   question: string;
 }
 
 export const EXAMPLE_QUESTIONS_UI: ExampleQuestionItem[] = [
   {
-    id: 'ex-1',
+    id: 'ex-cf',
+    category: 'Constituição Federal (CF/88)',
+    question:
+      'Quais são as cláusulas pétreas da Constituição Federal de 1988 que não podem ser objeto de emenda tendente a aboli-las?'
+  },
+  {
+    id: 'ex-cp',
+    category: 'Código Penal (CP)',
+    question:
+      'Quais são as causas de exclusão de ilicitude no Código Penal e como a lei define legítima defesa?'
+  },
+  {
+    id: 'ex-cc',
+    category: 'Código Civil (CC)',
+    question:
+      'Quais são os requisitos de validade do negócio jurídico e as hipóteses de nulidade absoluta segundo o Código Civil?'
+  },
+  {
+    id: 'ex-clt',
+    category: 'Trabalhista (CLT)',
+    question:
+      'Qual é a duração normal do trabalho e qual o percentual mínimo de remuneração da hora extra previsto na CLT?'
+  },
+  {
+    id: 'ex-cdc',
+    category: 'Consumidor (CDC)',
+    question:
+      'Qual é o prazo decadencial para o consumidor reclamar por vícios aparentes e ocultos em produtos duráveis e não duráveis?'
+  },
+  {
+    id: 'ex-ctn',
+    category: 'Tributário (CTN)',
+    question:
+      'Quais são as causas de suspensão da exigibilidade do crédito tributário previstas no Art. 151 do CTN?'
+  },
+  {
+    id: 'ex-licit',
     category: 'Lei 14.133/2021',
     question:
-      'Quais são as modalidades de licitação previstas na Lei 14.133/2021 e é permitida a criação de novas modalidades?'
+      'Qual é o limite de valor para dispensa de licitação em obras e serviços de engenharia na Lei 14.133/2021?'
   },
   {
-    id: 'ex-2',
-    category: 'Lei 14.133/2021',
-    question:
-      'Qual é o limite de valor para dispensa de licitação em obras e serviços de engenharia ou manutenção de veículos automotores?'
-  },
-  {
-    id: 'ex-3',
+    id: 'ex-lgpd',
     category: 'LGPD (Lei 13.709/2018)',
     question:
-      'Quais são as sanções administrativas e o limite máximo de multa aplicáveis pela ANPD na LGPD?'
+      'Quais são os direitos do titular dos dados pessoais em relação ao controlador na LGPD?'
   },
   {
-    id: 'ex-4',
-    category: 'LGPD (Lei 13.709/2018)',
-    question:
-      'Quais são os direitos do titular dos dados pessoais em relação ao controlador?'
-  },
-  {
-    id: 'ex-5',
+    id: 'ex-out',
     category: 'Fora do Escopo',
     question:
-      'Qual é a alíquota do Imposto sobre Grandes Fortunas e do ICMS interestadual prevista no Código Tributário Nacional?'
+      'Como preparar uma receita autêntica de bolo de cenoura com cobertura de brigadeiro crocante?'
   }
 ];
 

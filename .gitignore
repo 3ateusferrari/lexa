@@ -164,3 +164,11 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Configuração de geração de commits em português
+.gitmessage
+.gitmessage.txt
+.cz-config.js
+.czrc
+.commit-template
+
+

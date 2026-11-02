@@ -21,18 +21,77 @@ const STOPWORDS_PT = new Set([
   'um', 'uma', 'sobre', 'segundo', 'previsto', 'previstos', 'previstas', 'lei',
 ]);
 
+const COMMON_ACCENT_MAP: Record<string, string> = {
+  legitima: 'legítima',
+  legitimas: 'legítimas',
+  legitimo: 'legítimo',
+  legitimos: 'legítimos',
+  exclusao: 'exclusão',
+  exclusoes: 'exclusões',
+  clausula: 'cláusula',
+  clausulas: 'cláusulas',
+  petrea: 'pétrea',
+  petreas: 'pétreas',
+  tributario: 'tributário',
+  tributaria: 'tributária',
+  judiciario: 'judiciário',
+  codigo: 'código',
+  infracao: 'infração',
+  infracoes: 'infrações',
+  sancao: 'sanção',
+  sancoes: 'sanções',
+  pregao: 'pregão',
+  rescisao: 'rescisão',
+  patrimonio: 'patrimônio',
+  honorarios: 'honorários',
+  acao: 'ação',
+  acoes: 'ações',
+  orgao: 'órgão',
+  orgaos: 'órgãos',
+  uniao: 'união',
+  publico: 'público',
+  publica: 'pública',
+  publicos: 'públicos',
+  publicas: 'públicas',
+  juridico: 'jurídico',
+  juridica: 'jurídica',
+  juridicos: 'jurídicos',
+  juridicas: 'jurídicas',
+  audiencia: 'audiência',
+  competencia: 'competência',
+  inquerito: 'inquérito',
+  estatutario: 'estatutário',
+  proprio: 'próprio',
+  propria: 'própria',
+  previdencia: 'previdência',
+  salario: 'salário',
+  decisao: 'decisão',
+  decisoes: 'decisões',
+};
+
 export function buildPortugueseOrTsQueryString(rawQuery: string): string {
-  const words = rawQuery
+  const rawWords = rawQuery
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s]/gu, ' ')
     .split(/\s+/)
     .filter((w) => w.length >= 2 && !STOPWORDS_PT.has(w));
 
-  if (words.length === 0) {
+  if (rawWords.length === 0) {
     return rawQuery.replace(/[^\p{L}\p{N}\s]/gu, ' ').trim();
   }
 
-  return words.join(' OR ');
+  const expandedTokens = new Set<string>();
+  for (const word of rawWords) {
+    expandedTokens.add(word);
+    const unaccented = word.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    expandedTokens.add(unaccented);
+    const mappedAccented = COMMON_ACCENT_MAP[unaccented];
+    if (mappedAccented) {
+      expandedTokens.add(mappedAccented);
+    }
+  }
+
+  return Array.from(expandedTokens).join(' OR ');
 }
 
 export async function lexicalSearch(
