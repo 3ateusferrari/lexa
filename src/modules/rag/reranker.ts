@@ -58,7 +58,7 @@ export function rerankChunks(
   const outOfCorpusPenalty = outOfCorpusHits >= 2 ? 0.35 : outOfCorpusHits === 1 ? 0.12 : 0;
 
   const scored = candidates.map((candidate) => {
-    const docText = `${candidate.sectionPath ?? ''} ${candidate.article ?? ''} ${candidate.content}`;
+    const docText = `${candidate.documentTitle ?? ''} ${candidate.sectionPath ?? ''} ${candidate.article ?? ''} ${candidate.content}`;
     const docTokens = tokenize(docText);
     const docTokenSet = new Set(docTokens);
     const docStemSet = new Set(docTokens.map(stem));

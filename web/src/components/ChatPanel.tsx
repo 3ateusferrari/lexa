@@ -88,7 +88,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ apiBaseUrl }) => {
             <input
               type="text"
               className="chat-input"
-              placeholder="Pergunte sobre a Lei 14.133/2021 (Licitações) ou Lei 13.709/2018 (LGPD)..."
+              placeholder="Pergunte sobre a CF/88, Código Penal, Civil, CPC, CLT, CDC, CTN, Licitações ou LGPD..."
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               disabled={isStreaming}

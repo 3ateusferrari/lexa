@@ -17,8 +17,9 @@ interface RawLexicalSearchRow {
 const STOPWORDS_PT = new Set([
   'a', 'ao', 'aos', 'as', 'com', 'como', 'da', 'das', 'de', 'do', 'dos', 'e', 'em',
   'na', 'nas', 'no', 'nos', 'o', 'os', 'ou', 'para', 'pela', 'pelas', 'pelo', 'pelos',
-  'por', 'qual', 'quais', 'quando', 'que', 'quem', 'sao', 'se', 'sem', 'seu', 'sua',
+  'por', 'qual', 'quais', 'quando', 'que', 'quem', 'sao', 'são', 'se', 'sem', 'seu', 'sua',
   'um', 'uma', 'sobre', 'segundo', 'previsto', 'previstos', 'previstas', 'lei',
+  'codigo', 'código', 'causas', 'hipoteses', 'hipóteses', 'define', 'requisitos',
 ]);
 
 const COMMON_ACCENT_MAP: Record<string, string> = {

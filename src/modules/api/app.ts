@@ -94,8 +94,8 @@ export function createApp(deps: AppDependencies = {}): Express {
 
     if (input.mode === 'hybrid') {
       const fused = await hybridSearchRRF(deps.db, input.query, queryEmbedding!, {
-        candidatePoolSize: 20,
-        topK: input.rerank ? 20 : input.k,
+        candidatePoolSize: 40,
+        topK: input.rerank ? 40 : input.k,
         documentId: input.documentId,
         docType: input.docType,
       });
