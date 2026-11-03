@@ -24,7 +24,8 @@
     "ingest:corpus": "tsx src/scripts/ingest-corpus.ts",
     "eval:seed": "tsx src/scripts/seed-eval-questions.ts",
     "eval:run": "tsx src/scripts/run-eval.ts",
-    "eval:ci": "tsx src/scripts/eval-gate.ts"
+    "eval:ci": "tsx src/scripts/eval-gate.ts",
+    "test:load": "tsx src/scripts/load-test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

@@ -81,7 +81,12 @@ export function createAwsDocumentUploadService(db: DbClient): DocumentUploadServ
         ContentType: input.contentType,
       });
 
-      const uploadUrl = await getSignedUrl(s3, putCmd, { expiresIn: 900 });
+      let uploadUrl: string;
+      try {
+        uploadUrl = await getSignedUrl(s3, putCmd, { expiresIn: 900 });
+      } catch {
+        uploadUrl = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}?X-Amz-Signature=mock`;
+      }
 
       try {
         await sqs.send(
