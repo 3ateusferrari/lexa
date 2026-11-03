@@ -24,7 +24,7 @@ export const uploadUrlRequestSchema = z.object({
     .positive()
     .max(MAX_UPLOAD_SIZE_BYTES, 'File size exceeds 10 MB limit'),
   title: z.string().trim().min(3).max(200),
-  docType: z.enum(['lei', 'edital', 'contrato']),
+  docType: z.enum(['lei', 'edital', 'contrato', 'decreto']),
   sourceUrl: z.string().url().optional(),
 });
 
@@ -55,14 +55,28 @@ export function createAwsDocumentUploadService(db: DbClient): DocumentUploadServ
     process.env.SQS_INGEST_QUEUE_URL ??
     'http://localhost:4566/000000000000/lexa-ingestion-queue';
 
+  const hasAwsEnvCredentials = Boolean(
+    process.env.AWS_ACCESS_KEY_ID ||
+      process.env.AWS_CONTAINER_CREDENTIALS_RELATIVE_URI ||
+      process.env.AWS_CONTAINER_CREDENTIALS_FULL_URI ||
+      process.env.AWS_WEB_IDENTITY_TOKEN_FILE,
+  );
+  const localFallbackCredentials = !hasAwsEnvCredentials
+    ? { accessKeyId: 'test', secretAccessKey: 'test' }
+    : undefined;
+
   const s3 = new S3Client({
     region,
+    maxAttempts: endpoint ? 2 : 1,
     ...(endpoint ? { endpoint, forcePathStyle: true } : {}),
+    ...(localFallbackCredentials ? { credentials: localFallbackCredentials } : {}),
   });
 
   const sqs = new SQSClient({
     region,
+    maxAttempts: endpoint ? 2 : 1,
     ...(endpoint ? { endpoint } : {}),
+    ...(localFallbackCredentials ? { credentials: localFallbackCredentials } : {}),
   });
 
   return {
@@ -88,33 +102,35 @@ export function createAwsDocumentUploadService(db: DbClient): DocumentUploadServ
         uploadUrl = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}?X-Amz-Signature=mock`;
       }
 
-      try {
-        await sqs.send(
-          new SendMessageCommand({
-            QueueUrl: queueUrl,
-            MessageBody: JSON.stringify({
-              jobId: job.id,
-              s3Key,
-              title: input.title,
-              docType: input.docType,
-              sourceUrl: input.sourceUrl ?? null,
-              format: input.fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'html',
-              requestId: requestId ?? randomUUID(),
-            }),
-            ...(requestId
-              ? {
-                  MessageAttributes: {
-                    RequestId: {
-                      DataType: 'String',
-                      StringValue: requestId,
+      if (hasAwsEnvCredentials || endpoint) {
+        try {
+          await sqs.send(
+            new SendMessageCommand({
+              QueueUrl: queueUrl,
+              MessageBody: JSON.stringify({
+                jobId: job.id,
+                s3Key,
+                title: input.title,
+                docType: input.docType,
+                sourceUrl: input.sourceUrl ?? null,
+                format: input.fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'html',
+                requestId: requestId ?? randomUUID(),
+              }),
+              ...(requestId
+                ? {
+                    MessageAttributes: {
+                      RequestId: {
+                        DataType: 'String',
+                        StringValue: requestId,
+                      },
                     },
-                  },
-                }
-              : {}),
-          }),
-        );
-      } catch {
-        // In local mode without LocalStack running, the job remains queued in DB
+                  }
+                : {}),
+            }),
+          );
+        } catch {
+          // In local mode without LocalStack running, the job remains queued in DB
+        }
       }
 
       return {

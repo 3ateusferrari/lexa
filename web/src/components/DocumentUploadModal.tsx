@@ -8,7 +8,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
   apiBaseUrl
 }) => {
   const [title, setTitle] = useState('Edital Pregão Eletrônico nº 01/2026');
-  const [docType, setDocType] = useState<'edital' | 'lei' | 'decreto'>('edital');
+  const [docType, setDocType] = useState<'edital' | 'lei' | 'contrato' | 'decreto'>('edital');
   const [contentText, setContentText] = useState(
     'Art. 1º Este Edital regulamenta o pregão eletrônico para contratação de serviços de nuvem sob a Lei 14.133/2021.\nArt. 2º O critério de julgamento será o de menor preço por item.'
   );
@@ -23,50 +23,57 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
     setStatusMessage('Solicitando URL pré-assinada do S3...');
 
     try {
+      const safeSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'documento';
+      const fileSizeBytes = Math.max(1, new TextEncoder().encode(contentText).length);
+
       const res = await fetch(`${apiBaseUrl}/documents/upload-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           docType,
-          fileName: `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.txt`,
-          contentType: 'text/plain'
+          fileName: `${safeSlug}.html`,
+          contentType: 'text/html',
+          fileSizeBytes
         })
       });
 
       const data = (await res.json()) as {
+        jobId?: string;
         documentId?: string;
         uploadUrl?: string;
         status?: string;
         message?: string;
       };
 
-      if (!res.ok || !data.documentId || !data.uploadUrl) {
+      const targetId = data.jobId ?? data.documentId;
+
+      if (!res.ok || !targetId || !data.uploadUrl) {
         setStatusMessage(data.message ?? 'Serviço de upload S3 indisponível.');
         setIsBusy(false);
         return;
       }
 
-      setDocumentId(data.documentId);
-      setIngestStatus(data.status ?? 'pending');
+      setDocumentId(targetId);
+      setIngestStatus(data.status ?? 'queued');
       setStatusMessage(
-        `Documento registrado (${data.documentId}). Enviando arquivo para S3 e aguardando worker SQS...`
+        `Job registrado (${targetId}). Enviando arquivo para S3 e aguardando worker SQS...`
       );
 
       await fetch(data.uploadUrl, {
         method: 'PUT',
-        headers: { 'Content-Type': 'text/plain' },
+        headers: { 'Content-Type': 'text/html' },
         body: contentText
       }).catch(() => {
         // Local preview when LocalStack is offline
       });
 
       const statusRes = await fetch(
-        `${apiBaseUrl}/documents/${data.documentId}/status`
+        `${apiBaseUrl}/documents/jobs/${targetId}`
       );
       if (statusRes.ok) {
         const statusData = (await statusRes.json()) as { status?: string };
-        setIngestStatus(statusData.status ?? 'pending');
+        setIngestStatus(statusData.status ?? 'queued');
       }
     } catch (err) {
       setStatusMessage(
@@ -124,11 +131,12 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
               className="chat-input"
               value={docType}
               onChange={(e) =>
-                setDocType(e.target.value as 'edital' | 'lei' | 'decreto')
+                setDocType(e.target.value as 'edital' | 'lei' | 'contrato' | 'decreto')
               }
             >
               <option value="edital">Edital de Licitação</option>
               <option value="lei">Lei Federal / Estadual</option>
+              <option value="contrato">Contrato Administrativo</option>
               <option value="decreto">Decreto Regulamentar</option>
             </select>
           </div>

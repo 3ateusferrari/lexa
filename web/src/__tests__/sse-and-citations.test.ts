@@ -96,4 +96,52 @@ describe('Frontend Chat SSE Parser & Citation Highlighter (ISSUE-17)', () => {
     expect(tokens).toEqual(['Olá']);
     expect(doneMeta).toMatchObject({ refused: false, latencyMs: 100 });
   });
+
+  it('segments answers containing non-UUID chunkId references like [example-art-75] or [chunk-art-75] into clickable [Fonte N] badges', () => {
+    const citations: CitationPayload[] = [
+      {
+        sourceId: 'Fonte 1',
+        chunkId: 'example-art-75',
+        documentTitle: 'Lei nº 14.133/2021',
+        articleRef: 'Art. 75',
+        content: 'Art. 75. É dispensável a licitação...',
+        rerankScore: 0.98
+      }
+    ];
+
+    const segments = segmentAnswerWithCitations(
+      'A licitação é dispensável até R$ 100.000,00 [example-art-75].',
+      citations
+    );
+
+    expect(segments).toEqual([
+      { type: 'text', text: 'A licitação é dispensável até R$ 100.000,00 ' },
+      {
+        type: 'citation',
+        sourceId: 'Fonte 1',
+        label: '[Fonte 1]',
+        citation: citations[0]
+      },
+      { type: 'text', text: '.' }
+    ]);
+  });
+
+  it('invokes onError when response is not ok or when an SSE error event is received', async () => {
+    const errors: string[] = [];
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      json: async () => ({ message: 'Limite de requisições excedido' })
+    });
+
+    await streamChatQuestion('http://localhost:3000', 'pergunta teste', {
+      onToken: () => {},
+      onCitations: () => {},
+      onDone: () => {},
+      onError: (msg) => errors.push(msg)
+    });
+
+    expect(errors).toEqual(['Limite de requisições excedido']);
+  });
 });

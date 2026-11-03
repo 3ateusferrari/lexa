@@ -149,14 +149,14 @@ export function segmentAnswerWithCitations(
   });
 
   const regex =
-    /(\[(?:Fonte\s+\d+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\])/gi;
+    /(\[(?:Fonte\s+\d+|(?:example|chunk)-[a-zA-Z0-9_-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\])/gi;
   const parts = answer.split(regex);
   const segments: AnswerSegment[] = [];
 
   for (const part of parts) {
     if (!part) continue;
     const match =
-      /^\[(Fonte\s+\d+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]$/i.exec(
+      /^\[(Fonte\s+\d+|(?:example|chunk)-[a-zA-Z0-9_-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]$/i.exec(
         part
       );
     if (match && match[1]) {

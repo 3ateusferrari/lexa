@@ -128,16 +128,19 @@ npm run db:migrate
 # 4. Ingerir o corpus normativo (12 diplomas consolidados)
 npm run ingest:corpus
 
-# 5. Executar os testes automatizados (29 suítes, 70 testes)
+# 5. Executar os testes automatizados (32 suítes, 80 testes)
 npm test
 
 # 6. Executar o Gate de Qualidade do RAG (Hit Rate e MRR)
 npm run eval:ci
 
-# 7. Iniciar a API e o worker SQS
+# 7. Executar a suíte de testes de carga e estresse (5 cenários concorrentes)
+npm run test:load
+
+# 8. Iniciar a API e o worker SQS
 npm run dev
 
-# 8. Iniciar a interface Web (React + Vite)
+# 9. Iniciar a interface Web (React + Vite)
 npm run dev:web
 ```
 
@@ -147,7 +150,7 @@ Acesse a interface em `http://localhost:5173`.
 
 ## 7. Estrutura de Testes Automatizados
 
-O projeto conta com **29 suítes de teste e 70 testes automatizados** cobrindo todos os níveis da aplicação:
+O projeto conta com **32 suítes de teste e 80 testes automatizados** cobrindo todos os níveis da aplicação:
 
 1. **Ingestão & Extração:**
    - [`pdf-extractor.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/ingestion/__tests__/pdf-extractor.test.ts): Validação de streams PDF, descompactação zlib e unescape de strings.
@@ -157,7 +160,11 @@ O projeto conta com **29 suítes de teste e 70 testes automatizados** cobrindo t
    - [`citation-validator.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/rag/__tests__/citation-validator.test.ts): Mapeamento reverso de `[Fonte N]`, bloqueio de alucinações e escape de XML.
    - [`refusal-guard.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/rag/__tests__/refusal-guard.test.ts): Calibração de corte para recusa segura de perguntas fora de escopo.
    - [`vector-search.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/rag/__tests__/vector-search.test.ts): Proteção contra entradas vazias, `NaN` ou vetores corrompidos no Postgres.
-3. **Infraestrutura & Nuvem (Terraform):**
+   - [`lexical-and-hybrid.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/rag/__tests__/lexical-and-hybrid.test.ts): Expansão ortográfica/acentual em `tsvector` (`pt-BR`) e fusão híbrida RRF com filtros.
+3. **API, Carga, Resiliência & Contratos:**
+   - [`documents-and-errors.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/api/__tests__/documents-and-errors.test.ts): Geração de Presigned URLs sem bloqueio IMDS, alinhamento do cache de exemplos da UI e middleware de erros HTTP (`400`/`413`/`500`).
+   - [`load-and-concurrency.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/src/modules/api/__tests__/load-and-concurrency.test.ts): Testes concorrentes de throughput, busca híbrida, streaming SSE e proteção contra DoS (`429`).
+4. **Infraestrutura & Nuvem (Terraform):**
    - Testes unitários validando conformidade de IAM least-privilege, dimensionamento do ECS Fargate, CloudFront OAC e políticas de segurança.
-4. **Interface & Streaming:**
-   - [`sse-and-citations.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/web/src/__tests__/sse-and-citations.test.ts): Streaming SSE com flush de buffer final e segmentação de citações.
+5. **Interface & Streaming:**
+   - [`sse-and-citations.test.ts`](file:///home/mateus/Documentos/Projetos/lexa/web/src/__tests__/sse-and-citations.test.ts): Streaming SSE com flush de buffer final, tratamento de erros e segmentação de citações (`[Fonte N]`, UUIDs e IDs de exemplos).
