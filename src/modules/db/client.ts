@@ -129,8 +129,10 @@ export async function createResilientDatabaseConnection(
     await pgConn.execSql('SELECT 1;');
     await pgConn.execSql(getInitialMigrationSql());
     return pgConn;
-  } catch (err: any) {
-    if (err && typeof err === 'object' && err.code === '3D000') {
+  } catch (err: unknown) {
+    const errorObject = err as { code?: string } | null | undefined;
+    if (errorObject?.code === '3D000') {
+      let adminPool: pg.Pool | undefined;
       try {
         const requiresSsl =
           databaseUrl.includes('sslmode=require') ||
@@ -140,7 +142,7 @@ export async function createResilientDatabaseConnection(
         const targetDbName = adminUrlObj.pathname.replace(/^\//, '');
         adminUrlObj.pathname = '/postgres';
         adminUrlObj.searchParams.delete('sslmode');
-        const adminPool = new pg.Pool({
+        adminPool = new pg.Pool({
           connectionString: adminUrlObj.toString(),
           max: 2,
           connectionTimeoutMillis: 5000,
@@ -148,15 +150,19 @@ export async function createResilientDatabaseConnection(
         });
         const safeDbName = targetDbName.replace(/[^a-zA-Z0-9_]/g, '');
         await adminPool.query(`CREATE DATABASE "${safeDbName}";`);
-        await adminPool.end();
         console.log(`Successfully auto-created database "${safeDbName}" on RDS!`);
 
+        await pgConn.close().catch(() => undefined);
         pgConn = createDatabaseConnection(databaseUrl);
         await pgConn.execSql('SELECT 1;');
         await pgConn.execSql(getInitialMigrationSql());
         return pgConn;
       } catch (adminErr) {
         console.error('Failed to auto-create database via admin connection:', adminErr);
+      } finally {
+        if (adminPool) {
+          await adminPool.end().catch(() => undefined);
+        }
       }
     }
 

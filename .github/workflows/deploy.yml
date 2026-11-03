@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
   ECR_REPOSITORY: lexa-app
   ECS_CLUSTER: lexa-cluster
   ECS_API_SERVICE: lexa-api-service

@@ -90,7 +90,8 @@ resource "aws_ecs_task_definition" "api" {
         { name = "NODE_ENV", value = "production" },
         { name = "PORT", value = "3000" },
         { name = "S3_DOCUMENTS_BUCKET", value = var.documents_bucket_name },
-        { name = "SQS_INGEST_QUEUE_URL", value = var.ingest_queue_url }
+        { name = "SQS_INGEST_QUEUE_URL", value = var.ingest_queue_url },
+        { name = "SQS_INGESTION_QUEUE_URL", value = var.ingest_queue_url }
       ]
       secrets = [
         { name = "DATABASE_URL", valueFrom = var.database_url_ssm_arn },
@@ -126,7 +127,8 @@ resource "aws_ecs_task_definition" "worker" {
       environment = [
         { name = "NODE_ENV", value = "production" },
         { name = "S3_DOCUMENTS_BUCKET", value = var.documents_bucket_name },
-        { name = "SQS_INGEST_QUEUE_URL", value = var.ingest_queue_url }
+        { name = "SQS_INGEST_QUEUE_URL", value = var.ingest_queue_url },
+        { name = "SQS_INGESTION_QUEUE_URL", value = var.ingest_queue_url }
       ]
       secrets = [
         { name = "DATABASE_URL", valueFrom = var.database_url_ssm_arn }

@@ -48,11 +48,13 @@ export class IngestService {
     const existingDoc = await this.documentsRepo.findByContentHash(contentHash);
     if (existingDoc) {
       const existingChunks = await this.chunksRepo.findByDocumentId(existingDoc.id);
-      return {
-        document: existingDoc,
-        chunksCount: existingChunks.length,
-        skipped: true,
-      };
+      if (existingChunks.length > 0) {
+        return {
+          document: existingDoc,
+          chunksCount: existingChunks.length,
+          skipped: true,
+        };
+      }
     }
 
     const legalChunks =
@@ -63,13 +65,15 @@ export class IngestService {
     const embeddedTexts = legalChunks.map((c) => c.embeddedText);
     const vectors = await this.embedder.embedBatch(embeddedTexts);
 
-    const document = await this.documentsRepo.create({
-      title: input.title,
-      docType: input.docType,
-      sourceUrl: input.sourceUrl ?? null,
-      downloadedAt: input.downloadedAt ?? null,
-      contentHash,
-    });
+    const document =
+      existingDoc ??
+      (await this.documentsRepo.create({
+        title: input.title,
+        docType: input.docType,
+        sourceUrl: input.sourceUrl ?? null,
+        downloadedAt: input.downloadedAt ?? null,
+        contentHash,
+      }));
 
     await this.chunksRepo.insertBatch(
       legalChunks.map((chunk, idx) => ({

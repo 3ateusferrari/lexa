@@ -52,6 +52,7 @@ export function createAwsDocumentUploadService(db: DbClient): DocumentUploadServ
   const bucket = process.env.S3_DOCUMENTS_BUCKET ?? 'lexa-documents';
   const queueUrl =
     process.env.SQS_INGESTION_QUEUE_URL ??
+    process.env.SQS_INGEST_QUEUE_URL ??
     'http://localhost:4566/000000000000/lexa-ingestion-queue';
 
   const s3 = new S3Client({

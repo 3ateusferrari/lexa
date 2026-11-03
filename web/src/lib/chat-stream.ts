@@ -216,6 +216,52 @@ export async function streamChatQuestion(
   const decoder = new TextDecoder();
   let buffer = '';
 
+  const handleEvent = (ev: SseParsedEvent) => {
+    const tokenText =
+      typeof ev.data.token === 'string'
+        ? ev.data.token
+        : typeof ev.data.text === 'string'
+          ? ev.data.text
+          : '';
+
+    if (ev.event === 'token' && tokenText) {
+      callbacks.onToken(tokenText);
+    } else if (ev.event === 'citations') {
+      const rawCitations = Array.isArray(ev.data.citations)
+        ? (ev.data.citations as Array<Record<string, unknown>>)
+        : [];
+      const citations: CitationPayload[] = rawCitations.map((c, idx) => ({
+        sourceId: typeof c.sourceId === 'string' && c.sourceId ? c.sourceId : `Fonte ${idx + 1}`,
+        chunkId: typeof c.chunkId === 'string' ? c.chunkId : undefined,
+        documentTitle: typeof c.documentTitle === 'string' ? c.documentTitle : 'Legislação Brasileira',
+        articleRef:
+          typeof c.articleRef === 'string' && c.articleRef
+            ? c.articleRef
+            : typeof c.article === 'string' && c.article
+              ? c.article
+              : 'Dispositivo',
+        content: typeof c.content === 'string' ? c.content : '',
+        rerankScore: Number(c.rerankScore ?? c.score ?? 0)
+      }));
+      const usedSources = Array.isArray(ev.data.usedSources)
+        ? (ev.data.usedSources as string[])
+        : citations.map((c) => c.sourceId);
+      callbacks.onCitations(citations, usedSources);
+    } else if (ev.event === 'done') {
+      const totalLatency =
+        Number(ev.data.latencyMs ?? 0) ||
+        Number(ev.data.searchLatencyMs ?? 0) + Number(ev.data.llmLatencyMs ?? 0);
+      callbacks.onDone({
+        refused: Boolean(ev.data.refused),
+        latencyMs: totalLatency,
+        modelId: String(ev.data.modelId ?? 'claude-3-5-haiku-latest'),
+        cached: Boolean(ev.data.cached)
+      });
+    } else if (ev.event === 'error') {
+      callbacks.onError(String(ev.data.message ?? 'Erro inesperado no streaming'));
+    }
+  };
+
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
@@ -229,49 +275,15 @@ export async function streamChatQuestion(
 
     const events = parseSseChunk(completePart);
     for (const ev of events) {
-      const tokenText =
-        typeof ev.data.token === 'string'
-          ? ev.data.token
-          : typeof ev.data.text === 'string'
-            ? ev.data.text
-            : '';
+      handleEvent(ev);
+    }
+  }
 
-      if (ev.event === 'token' && tokenText) {
-        callbacks.onToken(tokenText);
-      } else if (ev.event === 'citations') {
-        const rawCitations = Array.isArray(ev.data.citations)
-          ? (ev.data.citations as Array<Record<string, unknown>>)
-          : [];
-        const citations: CitationPayload[] = rawCitations.map((c, idx) => ({
-          sourceId: typeof c.sourceId === 'string' && c.sourceId ? c.sourceId : `Fonte ${idx + 1}`,
-          chunkId: typeof c.chunkId === 'string' ? c.chunkId : undefined,
-          documentTitle: typeof c.documentTitle === 'string' ? c.documentTitle : 'Legislação Brasileira',
-          articleRef:
-            typeof c.articleRef === 'string' && c.articleRef
-              ? c.articleRef
-              : typeof c.article === 'string' && c.article
-                ? c.article
-                : 'Dispositivo',
-          content: typeof c.content === 'string' ? c.content : '',
-          rerankScore: Number(c.rerankScore ?? c.score ?? 0)
-        }));
-        const usedSources = Array.isArray(ev.data.usedSources)
-          ? (ev.data.usedSources as string[])
-          : citations.map((c) => c.sourceId);
-        callbacks.onCitations(citations, usedSources);
-      } else if (ev.event === 'done') {
-        const totalLatency =
-          Number(ev.data.latencyMs ?? 0) ||
-          Number(ev.data.searchLatencyMs ?? 0) + Number(ev.data.llmLatencyMs ?? 0);
-        callbacks.onDone({
-          refused: Boolean(ev.data.refused),
-          latencyMs: totalLatency,
-          modelId: String(ev.data.modelId ?? 'claude-3-5-haiku-latest'),
-          cached: Boolean(ev.data.cached)
-        });
-      } else if (ev.event === 'error') {
-        callbacks.onError(String(ev.data.message ?? 'Erro inesperado no streaming'));
-      }
+  buffer += decoder.decode();
+  if (buffer.trim().length > 0) {
+    const trailingEvents = parseSseChunk(buffer);
+    for (const ev of trailingEvents) {
+      handleEvent(ev);
     }
   }
 }

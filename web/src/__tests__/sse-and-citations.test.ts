@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   parseSseChunk,
   segmentAnswerWithCitations,
+  streamChatQuestion,
   EXAMPLE_QUESTIONS_UI,
   type CitationPayload
 } from '../lib/chat-stream.js';
@@ -61,5 +62,38 @@ describe('Frontend Chat SSE Parser & Citation Highlighter (ISSUE-17)', () => {
   it('exposes pre-populated example questions covering Lei 14.133, LGPD and out-of-scope refusal', () => {
     expect(EXAMPLE_QUESTIONS_UI.length).toBeGreaterThanOrEqual(4);
     expect(EXAMPLE_QUESTIONS_UI.some((q) => q.category === 'Fora do Escopo')).toBe(true);
+  });
+
+  it('handles trailing buffer when stream closes without double newline', async () => {
+    const tokens: string[] = [];
+    let doneMeta: unknown;
+
+    const mockStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('event: token\ndata: {"token":"Olá"}\n\n'));
+        // Trailing chunk without trailing double newline
+        controller.enqueue(
+          new TextEncoder().encode('event: done\ndata: {"refused":false,"latencyMs":100}')
+        );
+        controller.close();
+      }
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      body: mockStream
+    });
+
+    await streamChatQuestion('http://localhost:3000', 'pergunta teste', {
+      onToken: (t) => tokens.push(t),
+      onCitations: () => {},
+      onDone: (meta) => {
+        doneMeta = meta;
+      },
+      onError: () => {}
+    });
+
+    expect(tokens).toEqual(['Olá']);
+    expect(doneMeta).toMatchObject({ refused: false, latencyMs: 100 });
   });
 });

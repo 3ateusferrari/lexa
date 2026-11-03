@@ -86,4 +86,37 @@ describe('Upload Presigned URL & SQS Ingestion Worker (ISSUE-15)', () => {
     expect(statusUpdates[0]).toMatchObject({ status: 'processing', incrementAttempt: true });
     expect(statusUpdates[1]).toMatchObject({ status: 'done', documentId: 'doc-999' });
   });
+
+  it('updates job status to failed when fetchS3Content or ingestDocument throws', async () => {
+    const statusUpdates: Array<{ status: string; incrementAttempt?: boolean; error?: string | null }> = [];
+
+    const msg: IngestionQueueMessage = {
+      jobId: 'job-err-456',
+      s3Key: 'uploads/corrupted.html',
+      title: 'Arquivo Corrompido',
+      docType: 'lei',
+      format: 'html',
+    };
+
+    await expect(
+      processIngestionQueueMessage(msg, {
+        updateJobStatus: async (_id, update) => {
+          statusUpdates.push(update);
+        },
+        fetchS3Content: async () => {
+          throw new Error('NoSuchKey: File not found in S3');
+        },
+        ingestDocument: async () => ({
+          documentId: 'doc-none',
+          chunksCount: 0,
+        }),
+      }),
+    ).rejects.toThrow('NoSuchKey');
+
+    expect(statusUpdates[0]).toMatchObject({ status: 'processing', incrementAttempt: true });
+    expect(statusUpdates[1]).toMatchObject({
+      status: 'failed',
+      error: 'NoSuchKey: File not found in S3',
+    });
+  });
 });

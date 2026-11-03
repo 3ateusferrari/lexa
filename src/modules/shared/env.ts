@@ -26,7 +26,14 @@ const envSchema = z.object({
 export type AppEnv = z.infer<typeof envSchema>;
 
 export function parseEnv(rawEnv: Record<string, string | undefined> = process.env): AppEnv {
-  const parsed = envSchema.safeParse(rawEnv);
+  const normalizedEnv = {
+    ...rawEnv,
+    SQS_INGESTION_QUEUE_URL:
+      rawEnv.SQS_INGESTION_QUEUE_URL ??
+      rawEnv.SQS_INGEST_QUEUE_URL ??
+      rawEnv.SQS_INGESTION_QUEUE_URL,
+  };
+  const parsed = envSchema.safeParse(normalizedEnv);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .map((i) => `${i.path.join('.')}: ${i.message}`)

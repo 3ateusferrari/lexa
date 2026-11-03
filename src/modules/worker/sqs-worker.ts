@@ -10,6 +10,7 @@ import { IngestionJobsRepository } from '../db/repositories/index.js';
 import { CachedEmbedder, createLocalEmbeddingProvider } from '../ingestion/embedder.js';
 import type { DocumentInputFormat } from '../ingestion/extractor.js';
 import { IngestService } from '../ingestion/ingest-service.js';
+import { parseEnv } from '../shared/env.js';
 import { getAppLogger } from '../shared/logger.js';
 
 const logger = getAppLogger('sqs-worker');
@@ -129,40 +130,98 @@ export async function startSqsWorkerLoop(options: {
 
       for (const message of response.Messages ?? []) {
         if (!message.Body || !message.ReceiptHandle) continue;
-        const payload = JSON.parse(message.Body) as IngestionQueueMessage;
 
-        await processIngestionQueueMessage(payload, {
-          updateJobStatus: (jobId, update) => jobsRepo.updateStatus(jobId, update),
-          fetchS3Content: async (s3Key) => {
-            const obj = await s3.send(
-              new GetObjectCommand({
-                Bucket: options.bucket,
-                Key: s3Key,
-              }),
-            );
-            return (await obj.Body?.transformToString('utf-8')) ?? '';
-          },
-          ingestDocument: async (input) => {
-            const res = await ingestService.ingestDocument({
-              ...input,
-              downloadedAt: new Date().toISOString().slice(0, 10),
-            });
-            return {
-              documentId: res.document.id,
-              chunksCount: res.chunksCount,
-            };
-          },
-        });
+        try {
+          const payload = JSON.parse(message.Body) as IngestionQueueMessage;
 
-        await sqs.send(
-          new DeleteMessageCommand({
-            QueueUrl: options.queueUrl,
-            ReceiptHandle: message.ReceiptHandle,
-          }),
-        );
+          await processIngestionQueueMessage(payload, {
+            updateJobStatus: (jobId, update) => jobsRepo.updateStatus(jobId, update),
+            fetchS3Content: async (s3Key) => {
+              const obj = await s3.send(
+                new GetObjectCommand({
+                  Bucket: options.bucket,
+                  Key: s3Key,
+                }),
+              );
+              return (await obj.Body?.transformToString('utf-8')) ?? '';
+            },
+            ingestDocument: async (input) => {
+              const res = await ingestService.ingestDocument({
+                ...input,
+                downloadedAt: new Date().toISOString().slice(0, 10),
+              });
+              return {
+                documentId: res.document.id,
+                chunksCount: res.chunksCount,
+              };
+            },
+          });
+
+          await sqs.send(
+            new DeleteMessageCommand({
+              QueueUrl: options.queueUrl,
+              ReceiptHandle: message.ReceiptHandle,
+            }),
+          );
+        } catch (msgErr) {
+          logger.error(
+            {
+              event: 'worker_message_processing_failed',
+              err: msgErr instanceof Error ? msgErr.message : String(msgErr),
+              messageId: message.MessageId,
+            },
+            'Failed to process SQS ingestion message; continuing worker loop',
+          );
+        }
       }
     }
   } finally {
     await conn.close();
   }
+}
+
+async function main() {
+  const env = parseEnv();
+  const queueUrl =
+    process.env.SQS_INGESTION_QUEUE_URL ??
+    process.env.SQS_INGEST_QUEUE_URL ??
+    env.SQS_INGESTION_QUEUE_URL;
+
+  const abortController = new AbortController();
+
+  const shutdown = () => {
+    logger.info('Received shutdown signal, stopping SQS worker loop gracefully...');
+    abortController.abort();
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+
+  logger.info(
+    { queueUrl, bucket: env.S3_DOCUMENTS_BUCKET, region: env.AWS_REGION },
+    'Starting Lexa SQS Ingestion Worker',
+  );
+
+  await startSqsWorkerLoop({
+    databaseUrl: env.DATABASE_URL,
+    queueUrl,
+    bucket: env.S3_DOCUMENTS_BUCKET,
+    region: env.AWS_REGION,
+    endpoint: env.AWS_ENDPOINT_URL,
+    abortSignal: abortController.signal,
+  });
+}
+
+const argv1 = process.argv[1];
+const isDirectRun =
+  Boolean(argv1) &&
+  (import.meta.url === `file://${argv1}` ||
+    argv1?.endsWith('sqs-worker.ts') ||
+    argv1?.endsWith('sqs-worker.js'));
+
+if (isDirectRun) {
+  main().catch((err) => {
+    logger.error({ err }, 'Fatal error starting SQS ingestion worker');
+    process.exit(1);
+  });
 }

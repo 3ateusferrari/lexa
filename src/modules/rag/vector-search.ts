@@ -39,6 +39,14 @@ export async function vectorSearch(
   queryEmbedding: number[],
   options: VectorSearchOptions = {},
 ): Promise<SearchResultItem[]> {
+  if (
+    !Array.isArray(queryEmbedding) ||
+    queryEmbedding.length === 0 ||
+    queryEmbedding.some((val) => !Number.isFinite(val))
+  ) {
+    return [];
+  }
+
   const topK = options.topK ?? 5;
   const vectorLiteral = `[${queryEmbedding.join(',')}]`;
 
