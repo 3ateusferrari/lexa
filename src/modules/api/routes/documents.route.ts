@@ -93,7 +93,7 @@ export function createAwsDocumentUploadService(db: DbClient): DocumentUploadServ
               title: input.title,
               docType: input.docType,
               sourceUrl: input.sourceUrl ?? null,
-              format: input.fileName.toLowerCase().endsWith('.pdf') ? 'text' : 'html',
+              format: input.fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'html',
               requestId: requestId ?? randomUUID(),
             }),
             ...(requestId

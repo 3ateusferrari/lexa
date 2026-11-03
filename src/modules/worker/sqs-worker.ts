@@ -122,8 +122,9 @@ export async function startSqsWorkerLoop(options: {
       const response = await sqs.send(
         new ReceiveMessageCommand({
           QueueUrl: options.queueUrl,
-          MaxNumberOfMessages: 5,
+          MaxNumberOfMessages: 1,
           WaitTimeSeconds: 10,
+          VisibilityTimeout: 120,
           MessageAttributeNames: ['All'],
         }),
       );

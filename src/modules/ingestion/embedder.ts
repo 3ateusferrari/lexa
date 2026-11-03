@@ -420,6 +420,7 @@ export function createLocalEmbeddingProvider(
 export interface CachedEmbedderOptions {
   cacheDir?: string;
   batchSize?: number;
+  maxMemoryEntries?: number;
 }
 
 export class CachedEmbedder implements EmbeddingProvider {
@@ -427,6 +428,7 @@ export class CachedEmbedder implements EmbeddingProvider {
   readonly dimension: number;
   private readonly cacheDir: string;
   private readonly batchSize: number;
+  private readonly maxMemoryEntries: number;
   private readonly memoryCache = new Map<string, number[]>();
 
   constructor(
@@ -438,6 +440,7 @@ export class CachedEmbedder implements EmbeddingProvider {
     const safeModelDir = this.modelName.replace(/[^a-zA-Z0-9_-]/g, '_');
     this.cacheDir = join(options.cacheDir ?? '.cache/embeddings', safeModelDir);
     this.batchSize = options.batchSize ?? 32;
+    this.maxMemoryEntries = options.maxMemoryEntries ?? 2000;
     mkdirSync(this.cacheDir, { recursive: true });
   }
 
@@ -448,7 +451,31 @@ export class CachedEmbedder implements EmbeddingProvider {
   }
 
   private getCacheFilePath(hash: string): string {
-    return join(this.cacheDir, `${hash}.json`);
+    const prefix = hash.slice(0, 2);
+    const shardedDir = join(this.cacheDir, prefix);
+    mkdirSync(shardedDir, { recursive: true });
+    return join(shardedDir, `${hash}.json`);
+  }
+
+  private setMemoryCache(hash: string, vec: number[]): void {
+    if (this.memoryCache.has(hash)) {
+      this.memoryCache.delete(hash);
+    } else if (this.memoryCache.size >= this.maxMemoryEntries) {
+      const oldest = this.memoryCache.keys().next().value;
+      if (oldest) {
+        this.memoryCache.delete(oldest);
+      }
+    }
+    this.memoryCache.set(hash, vec);
+  }
+
+  private getMemoryCache(hash: string): number[] | undefined {
+    const val = this.memoryCache.get(hash);
+    if (val) {
+      this.memoryCache.delete(hash);
+      this.memoryCache.set(hash, val);
+    }
+    return val;
   }
 
   async embedBatch(texts: string[]): Promise<number[][]> {
@@ -461,17 +488,20 @@ export class CachedEmbedder implements EmbeddingProvider {
       const text = texts[i]!;
       const hash = this.hashText(text);
 
-      const memHit = this.memoryCache.get(hash);
+      const memHit = this.getMemoryCache(hash);
       if (memHit) {
         results[i] = memHit;
         continue;
       }
 
       const filePath = this.getCacheFilePath(hash);
-      if (existsSync(filePath)) {
+      const legacyPath = join(this.cacheDir, `${hash}.json`);
+      const targetPath = existsSync(filePath) ? filePath : existsSync(legacyPath) ? legacyPath : null;
+
+      if (targetPath) {
         try {
-          const parsed = JSON.parse(readFileSync(filePath, 'utf8')) as number[];
-          this.memoryCache.set(hash, parsed);
+          const parsed = JSON.parse(readFileSync(targetPath, 'utf8')) as number[];
+          this.setMemoryCache(hash, parsed);
           results[i] = parsed;
           continue;
         } catch {
@@ -494,7 +524,7 @@ export class CachedEmbedder implements EmbeddingProvider {
         const vec = batchVectors[j]!;
 
         results[globalIdx] = vec;
-        this.memoryCache.set(hash, vec);
+        this.setMemoryCache(hash, vec);
         writeFileSync(this.getCacheFilePath(hash), JSON.stringify(vec), 'utf8');
       }
     }

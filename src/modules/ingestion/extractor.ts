@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import * as cheerio from 'cheerio';
+import { extractTextFromPdf } from './pdf-extractor.js';
 
-export type DocumentInputFormat = 'html' | 'text';
+export type DocumentInputFormat = 'html' | 'text' | 'pdf';
 
 const NOISE_LINE_PATTERNS: RegExp[] = [
   /^Presid[êe]ncia da Rep[úu]blica$/i,
@@ -19,7 +20,9 @@ export function computeContentHash(content: string): string {
 export function extractCleanText(rawInput: string, format: DocumentInputFormat = 'html'): string {
   let plainText = rawInput;
 
-  if (format === 'html') {
+  if (format === 'pdf' || rawInput.startsWith('%PDF-')) {
+    plainText = extractTextFromPdf(rawInput);
+  } else if (format === 'html') {
     const $ = cheerio.load(rawInput);
     $('script, style, noscript, iframe, strike, s, del').remove();
 

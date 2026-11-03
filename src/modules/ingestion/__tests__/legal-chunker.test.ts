@@ -55,4 +55,42 @@ describe('chunkByLegalStructure & chunkByFixedSize', () => {
     expect(fixedChunks.length).toBeGreaterThan(10);
     expect(fixedChunks[0]?.position).toBe(0);
   });
+
+  it('captures preamble and ementa before Art. 1 without dropping content', () => {
+    const lawWithPreamble = [
+      'LEI Nº 99.999, DE 1º DE JANEIRO DE 2026',
+      'Dispõe sobre normas gerais de licitação e contratação administrativa.',
+      'O PRESIDENTE DA REPÚBLICA Faço saber que o Congresso Nacional decreta e eu sanciono:',
+      'Art. 1º Esta Lei estabelece normas gerais de licitação.',
+    ].join('\n');
+
+    const chunks = chunkByLegalStructure(lawWithPreamble);
+    expect(chunks.length).toBeGreaterThanOrEqual(2);
+    expect(chunks[0]?.article).toContain('Preâmbulo');
+    expect(chunks[0]?.content).toContain('Dispõe sobre normas gerais');
+    expect(chunks[1]?.article).toBe('Art. 1º');
+  });
+
+  it('extracts contractual clauses and procurement items in editais and contracts', () => {
+    const contractText = [
+      'CLÁUSULA PRIMEIRA - DO OBJETO',
+      'O presente contrato tem por objeto a prestação de serviços de computação em nuvem.',
+      'CLÁUSULA SEGUNDA - DO VALOR E DO PAGAMENTO',
+      'O valor global estimado é de R$ 50.000,00 (cinquenta mil reais).',
+    ].join('\n');
+
+    const chunks = chunkByLegalStructure(contractText);
+    expect(chunks.length).toBe(2);
+    expect(chunks[0]?.article).toContain('Cláusula');
+    expect(chunks[0]?.content).toContain('prestação de serviços');
+    expect(chunks[1]?.article).toContain('Cláusula');
+    expect(chunks[1]?.content).toContain('50.000,00');
+  });
+
+  it('falls back to fixed chunking if text has no legal articles or clauses', () => {
+    const freeText = 'Texto dissertativo contínuo de edital sem nenhum artigo explícito. '.repeat(10);
+    const chunks = chunkByLegalStructure(freeText, { maxCharsPerChunk: 100 });
+    expect(chunks.length).toBeGreaterThanOrEqual(2);
+    expect(chunks[0]?.content.length).toBeGreaterThan(0);
+  });
 });

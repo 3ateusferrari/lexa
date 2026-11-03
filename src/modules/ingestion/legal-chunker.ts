@@ -1,3 +1,5 @@
+import { chunkByFixedSize } from './fixed-chunker.js';
+
 export interface LegalChunk {
   position: number;
   article: string | null;
@@ -16,6 +18,8 @@ const CAPITULO_REGEX = /^CAP[ÍI]TULO\s+[IVXLCDM]+(?:\s*[-–—]\s*.*)?$/i;
 const SECAO_REGEX = /^Se[çc][ãa]o\s+[IVXLCDM]+(?:\s*[-–—]\s*.*)?$/i;
 const SUBSECAO_REGEX = /^Subse[çc][ãa]o\s+[IVXLCDM]+(?:\s*[-–—]\s*.*)?$/i;
 const ARTIGO_REGEX = /^Art\.\s*(\d+(?:-[A-Z])?(?:º|°)?)\b\.?\s*(.*)$/i;
+const CLAUSULA_REGEX = /^CL[ÁA]USULA\s+([A-Z0-9ªº\s–-]+)\b\.?\s*(.*)$/i;
+const ITEM_REGEX = /^(?:ITEM\s+)?(\d+(?:\.\d+)+)\s*[-–—.]?\s*(.*)$/i;
 
 function normalizeArticleLabel(rawNumber: string): string {
   const cleaned = rawNumber.replace(/°/g, 'º').trim();
@@ -74,6 +78,7 @@ export function chunkByLegalStructure(
   }
 
   const articleBlocks: RawArticleBlock[] = [];
+  const preambleLines: string[] = [];
   let currentBlock: RawArticleBlock | null = null;
 
   for (const line of lines) {
@@ -103,14 +108,38 @@ export function chunkByLegalStructure(
       continue;
     }
 
+    let detectedLabel: string | null = null;
     const artMatch = line.match(ARTIGO_REGEX);
     if (artMatch && artMatch[1]) {
+      detectedLabel = normalizeArticleLabel(artMatch[1]);
+    } else {
+      const clausulaMatch = line.match(CLAUSULA_REGEX);
+      if (clausulaMatch && clausulaMatch[1]) {
+        detectedLabel = `Cláusula ${clausulaMatch[1].trim()}`;
+      } else {
+        const itemMatch = line.match(ITEM_REGEX);
+        if (itemMatch && itemMatch[1]) {
+          detectedLabel = `Item ${itemMatch[1].trim()}`;
+        }
+      }
+    }
+
+    if (detectedLabel) {
+      if (preambleLines.length > 0 && !currentBlock && articleBlocks.length === 0) {
+        articleBlocks.push({
+          article: 'Preâmbulo / Ementa',
+          sectionPath: buildSectionPath(hierarchy),
+          lines: [...preambleLines],
+        });
+        preambleLines.length = 0;
+      }
+
       if (currentBlock) {
         articleBlocks.push(currentBlock);
       }
-      const normalizedArt = normalizeArticleLabel(artMatch[1]);
+
       currentBlock = {
-        article: normalizedArt,
+        article: detectedLabel,
         sectionPath: buildSectionPath(hierarchy),
         lines: [line],
       };
@@ -119,11 +148,32 @@ export function chunkByLegalStructure(
 
     if (currentBlock) {
       currentBlock.lines.push(line);
+    } else {
+      preambleLines.push(line);
     }
   }
 
   if (currentBlock) {
     articleBlocks.push(currentBlock);
+  } else if (preambleLines.length > 0 && articleBlocks.length === 0) {
+    articleBlocks.push({
+      article: 'Documento Geral',
+      sectionPath: buildSectionPath(hierarchy),
+      lines: preambleLines,
+    });
+  }
+
+  // Fallback to fixed chunking if no structural blocks could be extracted
+  if (articleBlocks.length === 0) {
+    const fixedChunks = chunkByFixedSize(cleanText, { chunkSize: maxChars, overlap: 100 });
+    return fixedChunks.map((c) => ({
+      position: c.position,
+      article: null,
+      sectionPath: null,
+      page: null,
+      content: c.content,
+      embeddedText: c.content,
+    }));
   }
 
   const results: LegalChunk[] = [];
@@ -131,7 +181,7 @@ export function chunkByLegalStructure(
 
   for (const block of articleBlocks) {
     const fullContent = block.lines.join('\n');
-    if (fullContent.length <= maxChars || block.lines.length <= 1) {
+    if (fullContent.length <= maxChars) {
       results.push({
         position: position++,
         article: block.article,
@@ -143,7 +193,22 @@ export function chunkByLegalStructure(
       continue;
     }
 
-    // Split oversized article into sub-chunks while always retaining the caput (first line)
+    if (block.lines.length <= 1) {
+      const fixed = chunkByFixedSize(fullContent, { chunkSize: maxChars, overlap: 50 });
+      for (const fc of fixed) {
+        results.push({
+          position: position++,
+          article: block.article,
+          sectionPath: block.sectionPath,
+          page: null,
+          content: fc.content,
+          embeddedText: buildEmbeddedText(block.sectionPath, block.article, fc.content),
+        });
+      }
+      continue;
+    }
+
+    // Split oversized article/clause into sub-chunks while always retaining the caput (first line)
     const caput = block.lines[0] ?? '';
     const subLines = block.lines.slice(1);
     let buffer: string[] = [caput];

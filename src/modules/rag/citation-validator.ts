@@ -8,27 +8,42 @@ export interface CitationValidationResult {
   sanitizedAnswer: string;
 }
 
-const CITATION_BRACKET_REGEX = /\[([a-zA-Z0-9_-]{4,64})\]/g;
+const CITATION_BRACKET_REGEX = /\[([a-zA-Z0-9_\s-]{1,64})\]/g;
 
 export function validateCitations(
   answerText: string,
   retrievedChunks: SearchResultItem[],
 ): CitationValidationResult {
   const chunkById = new Map<string, SearchResultItem>();
-  for (const chunk of retrievedChunks) {
+  const chunkByAlias = new Map<string, SearchResultItem>();
+
+  retrievedChunks.forEach((chunk, idx) => {
     chunkById.set(chunk.chunkId, chunk);
-  }
+    chunkByAlias.set(chunk.chunkId.toLowerCase(), chunk);
+    chunkByAlias.set(String(idx + 1), chunk);
+    chunkByAlias.set(`fonte ${idx + 1}`, chunk);
+    chunkByAlias.set(`fonte${idx + 1}`, chunk);
+  });
 
   const validSet = new Set<string>();
   const invalidSet = new Set<string>();
 
   for (const match of answerText.matchAll(CITATION_BRACKET_REGEX)) {
-    const id = match[1];
-    if (!id) continue;
-    if (chunkById.has(id)) {
-      validSet.add(id);
+    const rawMatch = match[1]?.trim();
+    if (!rawMatch) continue;
+    const lowerKey = rawMatch.toLowerCase();
+    const resolvedChunk = chunkByAlias.get(lowerKey);
+
+    if (resolvedChunk) {
+      validSet.add(resolvedChunk.chunkId);
     } else {
-      invalidSet.add(id);
+      if (
+        lowerKey.startsWith('fonte') ||
+        /^[0-9a-f-]{10,}$/i.test(lowerKey) ||
+        lowerKey.startsWith('chunk-')
+      ) {
+        invalidSet.add(rawMatch);
+      }
     }
   }
 
