@@ -56,10 +56,14 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
       - name: Apply Database Migrations (Drizzle ORM)
-        if: ${{ secrets.DATABASE_URL != '' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm run db:migrate
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            npm run db:migrate
+          else
+            echo "DATABASE_URL secret is not set, skipping database migrations."
+          fi
 
       - name: Update ECS Fargate Services (API & SQS Worker)
         run: |
