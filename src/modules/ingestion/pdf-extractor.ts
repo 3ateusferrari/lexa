@@ -130,7 +130,7 @@ export function extractTextFromPdf(input: Buffer | string): string {
     }
 
     const rawStreamSlice = buf.subarray(dataStart, dataEnd);
-    let streamText = '';
+    let streamText: string;
 
     const isFlate = dict.includes('/FlateDecode');
     if (isFlate) {

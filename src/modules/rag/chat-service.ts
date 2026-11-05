@@ -150,7 +150,7 @@ export async function executeGroundedChatStream(
     question: options.question,
   });
 
-  let usage = { promptTokens: 0, completionTokens: 0 };
+  let usage: { promptTokens: number; completionTokens: number };
   while (true) {
     const next = await gen.next();
     if (next.done) {
