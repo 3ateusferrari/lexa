@@ -11,7 +11,7 @@ describe('Continuous Deployment Workflow & Rollback Runbook (ISSUE-26)', () => {
     const content = fs.readFileSync(deployYmlPath, 'utf-8');
 
     expect(content).toContain('id-token: write');
-    expect(content).toContain('aws-actions/configure-aws-credentials@v4');
+    expect(content).toMatch(/aws-actions\/configure-aws-credentials@v\d+/);
     expect(content).toContain('${{ github.sha }}');
     expect(content).toContain('npm run db:migrate');
     expect(content).toContain('aws ecs update-service');

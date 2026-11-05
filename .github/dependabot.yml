@@ -4,9 +4,31 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
+    groups:
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+          - "typescript-eslint*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      testcontainers:
+        patterns:
+          - "testcontainers*"
+          - "@testcontainers/*"
+      drizzle:
+        patterns:
+          - "drizzle-orm*"
+          - "drizzle-kit*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "*"
